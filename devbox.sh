@@ -2,49 +2,18 @@
 
 set -euo pipefail
 
-build_agent_dev() {
-    WITH_LDFLAGS="$(agent_config)"
-    WITH_RACE=""
-    if [ "$GOOS" != "windows" ]; then
-        WITH_RACE="-race"
-        export CGO_ENABLED=1
-    fi
-
-    TAGS="dev $TAGS"
-    go build -tags "$TAGS" -o "$OUTPUT" $WITH_RACE -ldflags "$WITH_LDFLAGS" ./cmd/vessel
+test() {
+    WITH_RACE="-race"
+    export CGO_ENABLED=1
+    go test -tags "dev" $WITH_RACE -timeout 30s ./...
 }
 
-build_agent_prod() {
-    WITH_LDFLAGS="-w -s $(agent_config)"
+build() {
+    WITH_LDFLAGS="$(agent_config)"
     if [ "$GOOS" = "windows" ]; then
         WITH_LDFLAGS="$WITH_LDFLAGS -H windowsgui"
     fi
-
-    # TODO: enable garble
-    #garble -tiny build -tags prod -o "$OUTPUT" -ldflags="$WITH_LDFLAGS" ./cmd/vessel
     go build -tags "$TAGS" -o "$OUTPUT" -ldflags "$WITH_LDFLAGS" ./cmd/vessel
-}
-
-build_foojank_dev() {
-    OUTPUT="${OUTPUT:-build/foojank}"
-    export CGO_ENABLED=1
-    go build -race -tags dev -o "$OUTPUT" ./cmd/foojank
-}
-
-build_foojank_prod() {
-    OUTPUT="${OUTPUT:-build/foojank}"
-    go build -tags prod -o "$OUTPUT" ./cmd/foojank
-}
-
-generate_proto() {
-    if [ ! -d "./build/go-capnp" ]; then
-        git clone -b v3.0.1-alpha.2 --depth 1 https://github.com/capnproto/go-capnp ./build/go-capnp
-    fi
-
-    cd ./build/go-capnp || exit 1
-    go build -modfile go.mod -o ../capnpc-go ./capnpc-go
-    cd - || exit 1
-    go generate ./proto/capnp
 }
 
 agent_config() {
