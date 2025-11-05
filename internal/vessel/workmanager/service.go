@@ -8,12 +8,12 @@ import (
 
 	risoros "github.com/risor-io/risor/os"
 
-	"github.com/foohq/foojank/internal/router"
-	"github.com/foohq/foojank/internal/vessel/log"
-	"github.com/foohq/foojank/internal/vessel/message"
-	"github.com/foohq/foojank/internal/vessel/subjects"
-	"github.com/foohq/foojank/internal/vessel/worker"
 	"github.com/foohq/foojank/proto"
+	"github.com/foohq/vessel/internal/router"
+	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/vessel/message"
+	"github.com/foohq/vessel/internal/vessel/subjects"
+	"github.com/foohq/vessel/internal/vessel/worker"
 )
 
 type Arguments struct {

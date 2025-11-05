@@ -16,11 +16,12 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	risoros "github.com/risor-io/risor/os"
 
-	"github.com/foohq/foojank/internal/vessel/log"
-	"github.com/foohq/foojank/internal/vessel/message"
-	"github.com/foohq/foojank/internal/vessel/subjects"
-	"github.com/foohq/foojank/internal/vessel/workmanager"
 	"github.com/foohq/foojank/proto"
+
+	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/vessel/message"
+	"github.com/foohq/vessel/internal/vessel/subjects"
+	"github.com/foohq/vessel/internal/vessel/workmanager"
 )
 
 type Arguments struct {

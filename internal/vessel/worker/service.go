@@ -11,8 +11,8 @@ import (
 	"github.com/foohq/ren/modules"
 	risoros "github.com/risor-io/risor/os"
 
-	"github.com/foohq/foojank/internal/vessel/log"
-	"github.com/foohq/foojank/internal/vessel/message"
+	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/vessel/message"
 )
 
 type Arguments struct {

@@ -11,10 +11,10 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/foohq/foojank/internal/vessel"
-	"github.com/foohq/foojank/internal/vessel/dialer"
-	"github.com/foohq/foojank/internal/vessel/log"
-	"github.com/foohq/foojank/internal/vessel/subjects"
+	"github.com/foohq/vessel/internal/vessel"
+	"github.com/foohq/vessel/internal/vessel/dialer"
+	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/vessel/subjects"
 )
 
 var (

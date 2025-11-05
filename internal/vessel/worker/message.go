@@ -1,6 +1,6 @@
 package worker
 
-import "github.com/foohq/foojank/internal/vessel/message"
+import "github.com/foohq/vessel/internal/vessel/message"
 
 type EventWorkerStarted struct {
 	WorkerID string
