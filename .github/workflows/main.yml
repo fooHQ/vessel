@@ -38,24 +38,39 @@ jobs:
         GOOS:
           - linux
           - darwin
+          - windows
         GOARCH:
           - amd64
           - arm64
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: jetify-com/devbox-install-action@a0d2d53632934ae004f878c840055956d9f741b0 # v0.14.0
-      - run: devbox run build-foojank-prod
+      - run: devbox run build
         env:
           GOOS: "${{ matrix.GOOS }}"
           GOARCH: "${{ matrix.GOARCH }}"
-          OUTPUT: build/foojank-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: foojank-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
-          path: build/foojank-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
-          if-no-files-found: error
-          retention-days: 1
-          overwrite: true
+          OUTPUT: build/vessel-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          TAGS: dev
+          # Vessel configuration variables
+          ID: inspired-stinkbug
+          SERVER: wss://localhost
+          USER_JWT: eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTE5LW5rZXkifQ.eyJqdGkiOiI1WUc3UjNRUUNYN0hBVU9GNFNJU0FRS1ZCTkRYV0lSQVBLRzNWSzdBUE81V09DQ080SzdRIiwiaWF0IjoxNzU4NjQ5ODA2LCJpc3MiOiJBQ0RKSlRaQ1c3MzJYMlZDMlM3SDJBNVEyR01BTkQ0UENQU0ZVN0ZYNVZTTVo1MlZYNFhESDdMUyIsIm5hbWUiOiJpbnNwaXJlZC1zdGlua2J1ZyIsInN1YiI6IlVBWkJaSFVDRjdVWVUzVTdQSUlRQ1VZS0ZCUlBLQkRMVFE1Nkg1RlRSSUJCRjRRQUtIU0hKTkJJIiwibmF0cyI6eyJwdWIiOnsiYWxsb3ciOlsiRkouQVBJLldPUktFUi5XUklURS5TVERPVVQuaW5zcGlyZWQtc3RpbmtidWcuKiIsIkZKLkFQSS5XT1JLRVIuU1RBVFVTLmluc3BpcmVkLXN0aW5rYnVnLioiLCJGSi5BUEkuUkVQTFkuaW5zcGlyZWQtc3RpbmtidWcuKiIsIkZKLkFQSS5DT05ORUNUSU9OLklORk8uaW5zcGlyZWQtc3RpbmtidWciLCIkSlMuQUNLLkZKX2luc3BpcmVkLXN0aW5rYnVnLlx1MDAzZSIsIiRKUy5BUEkuU1RSRUFNLklORk8uRkpfaW5zcGlyZWQtc3RpbmtidWciLCIkSlMuQVBJLlNUUkVBTS5JTkZPLk9CSl9pbnNwaXJlZC1zdGlua2J1ZyIsIiRKUy5BUEkuU1RSRUFNLlBVUkdFLk9CSl9pbnNwaXJlZC1zdGlua2J1ZyIsIiRKUy5BUEkuQ09OU1VNRVIuSU5GTy5GSl9pbnNwaXJlZC1zdGlua2J1Zy4qIiwiJEpTLkFQSS5DT05TVU1FUi5NU0cuTkVYVC5GSl9pbnNwaXJlZC1zdGlua2J1Zy4qIiwiJEpTLkFQSS5DT05TVU1FUi5DUkVBVEUuT0JKX2luc3BpcmVkLXN0aW5rYnVnLiouJE8uaW5zcGlyZWQtc3RpbmtidWcuTS4qIiwiJEpTLkFQSS5DT05TVU1FUi5DUkVBVEUuT0JKX2luc3BpcmVkLXN0aW5rYnVnLlx1MDAzZSIsIiRKUy5BUEkuQ09OU1VNRVIuREVMRVRFLk9CSl9pbnNwaXJlZC1zdGlua2J1Zy4qIiwiJEpTLkFQSS5ESVJFQ1QuR0VULk9CSl9pbnNwaXJlZC1zdGlua2J1Zy5cdTAwM2UiLCIkTy5pbnNwaXJlZC1zdGlua2J1Zy5NLioiLCIkTy5pbnNwaXJlZC1zdGlua2J1Zy5DLioiXX0sInN1YiI6eyJhbGxvdyI6WyJfSU5CT1hfaW5zcGlyZWQtc3RpbmtidWcuXHUwMDNlIl19LCJzdWJzIjotMSwiZGF0YSI6LTEsInBheWxvYWQiOi0xLCJpc3N1ZXJfYWNjb3VudCI6IkFBN1hHVFhQVFcyQlZSVDVYWldIRExPTUtWRUhZUEU0NkkzUUdNN01KWjVGVjcyVTQzM0dHUFQ3IiwidHlwZSI6InVzZXIiLCJ2ZXJzaW9uIjoyfX0.wdls0rLi7HtUiOZtEWFK1Po_wkjrOW-7omMI_KUKLeaEJRmdZ4YccKdvtvC3M0umLqFp8dAgfRWmKj43om5BBA
+          USER_KEY: SUADEJZJQZP4J7MVTOW7567OC7PJTRJ5T4NPFBC5TUKW3YAK6D6FJZ7LRY
+          CA_CERTIFICATE: MIIBezCCASGgAwIBAgIRAKfcfT1tTSu+u1LxzDvCT0kwCgYIKoZIzj0EAwIwEjEQMA4GA1UECxMHQUNNRSBDbzAeFw0yNTA5MTcwNDU1MTFaFw0yNjA5MTcwNDU1MTFaMBIxEDAOBgNVBAsTB0FDTUUgQ28wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQ3/S0wFGSx5nyvcfocW+ozDaGUDrBy7NP8Si3cnI7phT3lhzk6gP58lLNH8uVNqVEClyF1Gef6LwwPP90qt2vco1gwVjAOBgNVHQ8BAf8EBAMCAoQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUG7NIxnVt+/crkItzCpYMkqB3pvkwFAYDVR0RBA0wC4IJbG9jYWxob3N0MAoGCCqGSM49BAMCA0gAMEUCIQCKU4fhXcfDOlL0cy/uLkkuXi1Vu2Jv/ZZQKDj8Tu9ZegIgam2517thqJ25pvHY0ASI8dEGEgZh8muadyMVBHn2RN0=
+          STREAM: FJ_inspired-stinkbug
+          CONSUMER: inspired-stinkbug
+          INBOX_PREFIX: _INBOX_inspired-stinkbug
+          OBJECT_STORE_NAME: inspired-stinkbug
+          SUBJECT_API_WORKER_START_T: FJ.API.WORKER.START.%s.%s
+          SUBJECT_API_WORKER_STOP_T: FJ.API.WORKER.STOP.%s.%s
+          SUBJECT_API_WORKER_WRITE_STDIN_T: FJ.API.WORKER.WRITE.STDIN.%s.%s
+          SUBJECT_API_WORKER_WRITE_STDOUT_T: FJ.API.WORKER.WRITE.STDOUT.%s.%s
+          SUBJECT_API_WORKER_STATUS_T: FJ.API.WORKER.STATUS.%s.%s
+          SUBJECT_API_CONN_INFO_T: FJ.API.CONNECTION.INFO.%s
+          SUBJECT_API_REPLY_T: FJ.API.REPLY.%s.%s
+          RECONNECT_INTERVAL: 1m
+          RECONNECT_JITTER: 5s
+          AWAIT_MESSAGES_DURATION: 5s
 
   release:
     name: Create a release
@@ -65,13 +80,4 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - run: v="$(echo "${{ github.ref }}" | cut -d '/' -f 3)"; grep -q "${v:1}" version.txt || (echo "version.txt does not match with the tagged version"; exit 1)
-      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
-        with:
-          pattern: foojank-*
-          path: .
-          merge-multiple: true
       - uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
-        with:
-          fail_on_unmatched_files: true
-          files: |
-            foojank-*
