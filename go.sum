@@ -8,8 +8,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.7 h1:zbFlGlXEAKlwXpmvle3d8Oe3YnkKIK4xSRTd3
 github.com/cpuguy83/go-md2man/v2 v2.0.7/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/foohq/foojank v0.3.1 h1:/IV+/QMRqPpgVaVSdCt9qANXMSgIN7sivgPIGON8Iuw=
-github.com/foohq/foojank v0.3.1/go.mod h1:xyjbHtUgNZVaq2nMWMNw9Xhz9EWQNkoUvGwdH3+Qz3w=
 github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08 h1:61VUDVOQNwJki1pQ67RUp4Es3SxK6tfro1p7ssHpbbI=
 github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08/go.mod h1:N4e7hn+VCk7RQIqqGTslO5SbUiFOpoe/+QDvnSTK0mA=
 github.com/foohq/ren v0.1.0 h1:0FnbBCcTSaKE8Q0Fd80HsRnDozg9RIU7wRFTO8pvpis=

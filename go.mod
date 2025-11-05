@@ -3,7 +3,6 @@ module github.com/foohq/vessel
 go 1.25.0
 
 require (
-	capnproto.org/go/capnp/v3 v3.1.0-alpha.1
 	github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08
 	github.com/foohq/ren v0.1.0
 	github.com/foohq/ren-memfs v0.0.0-20250715161330-d886928c2dee
@@ -16,6 +15,7 @@ require (
 )
 
 require (
+	capnproto.org/go/capnp/v3 v3.1.0-alpha.1 // indirect
 	github.com/colega/zeropool v0.0.0-20230505084239-6fb4a4f75381 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
