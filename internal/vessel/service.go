@@ -112,7 +112,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer monitorCancel()
 
 	wg.Go(func() {
-		err := monitor(monitorCtx, s.args.Connection, s.args.Templates.Render(subjects.ConnInfo, s.args.ID), publisherInCh)
+		err := monitor(monitorCtx, s.args.Connection, proto.UpdateClientInfoSubject(s.args.ID), publisherInCh)
 		if err != nil {
 			log.Debug("Monitor error", "error", err)
 		}
