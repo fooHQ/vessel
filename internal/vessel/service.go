@@ -20,7 +20,6 @@ import (
 
 	"github.com/foohq/vessel/internal/vessel/log"
 	"github.com/foohq/vessel/internal/vessel/message"
-	"github.com/foohq/vessel/internal/vessel/subjects"
 	"github.com/foohq/vessel/internal/vessel/workmanager"
 )
 
@@ -30,7 +29,6 @@ type Arguments struct {
 	Stream      jetstream.Stream
 	Consumer    jetstream.Consumer
 	ObjectStore jetstream.ObjectStore
-	Templates   subjects.Templates
 }
 
 type Service struct {
