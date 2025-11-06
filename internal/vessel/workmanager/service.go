@@ -13,13 +13,11 @@ import (
 	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/vessel/log"
 	"github.com/foohq/vessel/internal/vessel/message"
-	"github.com/foohq/vessel/internal/vessel/subjects"
 	"github.com/foohq/vessel/internal/vessel/worker"
 )
 
 type Arguments struct {
 	ID          string
-	Templates   subjects.Templates
 	Filesystems map[string]risoros.FS
 	InputCh     <-chan message.Msg
 	OutputCh    chan<- message.Msg
