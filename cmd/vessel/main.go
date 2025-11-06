@@ -14,7 +14,6 @@ import (
 	"github.com/foohq/vessel/internal/vessel"
 	"github.com/foohq/vessel/internal/vessel/dialer"
 	"github.com/foohq/vessel/internal/vessel/log"
-	"github.com/foohq/vessel/internal/vessel/subjects"
 )
 
 var (
@@ -82,15 +81,6 @@ func main() {
 		Stream:      stream,
 		Consumer:    consumer,
 		ObjectStore: store,
-		Templates: map[int]string{
-			subjects.StartWorker:       SubjectApiWorkerStartT,
-			subjects.StopWorker:        SubjectApiWorkerStopT,
-			subjects.WorkerWriteStdin:  SubjectApiWorkerWriteStdinT,
-			subjects.WorkerWriteStdout: SubjectApiWorkerWriteStdoutT,
-			subjects.WorkerStatus:      SubjectApiWorkerStatusT,
-			subjects.ConnInfo:          SubjectApiConnInfoT,
-			subjects.Reply:             SubjectApiReplyT,
-		},
 	}).Start(ctx)
 	if err != nil {
 		log.Debug("Cannot start the agent", "error", err)
