@@ -17,25 +17,18 @@ import (
 )
 
 var (
-	ID                           = ""
-	Server                       = ""
-	UserJWT                      = ""
-	UserKey                      = ""
-	CACertificate                = ""
-	Stream                       = ""
-	Consumer                     = ""
-	InboxPrefix                  = ""
-	ObjectStoreName              = ""
-	SubjectApiWorkerStartT       = ""
-	SubjectApiWorkerStopT        = ""
-	SubjectApiWorkerWriteStdinT  = ""
-	SubjectApiWorkerWriteStdoutT = ""
-	SubjectApiWorkerStatusT      = ""
-	SubjectApiConnInfoT          = ""
-	SubjectApiReplyT             = ""
-	ReconnectInterval            = "" // time.Duration
-	ReconnectJitter              = "" // time.Duration
-	AwaitMessagesDuration        = "" // time.Duration
+	ID                    = ""
+	Server                = ""
+	UserJWT               = ""
+	UserKey               = ""
+	CACertificate         = ""
+	Stream                = ""
+	Consumer              = ""
+	InboxPrefix           = ""
+	ObjectStoreName       = ""
+	ReconnectInterval     = "" // time.Duration
+	ReconnectJitter       = "" // time.Duration
+	AwaitMessagesDuration = "" // time.Duration
 )
 
 func main() {
