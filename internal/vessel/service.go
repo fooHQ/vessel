@@ -97,7 +97,6 @@ func (s *Service) Start(ctx context.Context) error {
 	wg.Go(func() {
 		err := workmanager.New(workmanager.Arguments{
 			ID:          s.args.ID,
-			Templates:   s.args.Templates,
 			Filesystems: filesystems,
 			InputCh:     consumerOutCh,
 			OutputCh:    publisherInCh,
