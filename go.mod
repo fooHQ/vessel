@@ -3,7 +3,7 @@ module github.com/foohq/vessel
 go 1.25.0
 
 require (
-	github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08
+	github.com/foohq/foojank v0.3.2-0.20251106204423-ddf781e40cd0
 	github.com/foohq/ren v0.1.0
 	github.com/foohq/ren-memfs v0.0.0-20250715161330-d886928c2dee
 	github.com/foohq/ren-natsfs v0.0.0-20250715161259-1f76eedb0ef2
