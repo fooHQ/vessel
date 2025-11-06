@@ -10,6 +10,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08 h1:61VUDVOQNwJki1pQ67RUp4Es3SxK6tfro1p7ssHpbbI=
 github.com/foohq/foojank v0.3.2-0.20251104080800-1cd362ed8e08/go.mod h1:N4e7hn+VCk7RQIqqGTslO5SbUiFOpoe/+QDvnSTK0mA=
+github.com/foohq/foojank v0.3.2-0.20251106204423-ddf781e40cd0 h1:rDlGBcKanOWdGTmLs70XYCtW/m6ACVNmrD1KbKG0mXM=
+github.com/foohq/foojank v0.3.2-0.20251106204423-ddf781e40cd0/go.mod h1:aFWHskhcdms6rFXbfFh7Va45GUmhqyXRzz9ZhCgu/f8=
 github.com/foohq/ren v0.1.0 h1:0FnbBCcTSaKE8Q0Fd80HsRnDozg9RIU7wRFTO8pvpis=
 github.com/foohq/ren v0.1.0/go.mod h1:itJgsz/iabOREwXj/scdRxfj8pN9cYKfran+IbF07oI=
 github.com/foohq/ren-memfs v0.0.0-20250715161330-d886928c2dee h1:hoVwo5TWdhCUOs/GUOMhEjrP98Mduho0/tR+bjh9i6w=
