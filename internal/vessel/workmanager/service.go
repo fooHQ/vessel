@@ -9,6 +9,7 @@ import (
 	risoros "github.com/risor-io/risor/os"
 
 	"github.com/foohq/foojank/proto"
+
 	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/vessel/log"
 	"github.com/foohq/vessel/internal/vessel/message"
@@ -44,9 +45,9 @@ func (s *Service) Start(ctx context.Context) error {
 	defer log.Debug("Service stopped", "service", "vessel.workmanager")
 
 	api := router.Handlers{
-		s.args.Templates.Render(subjects.StartWorker, "<agent>", "<worker>"):      s.handleStartWorker,
-		s.args.Templates.Render(subjects.StopWorker, "<agent>", "<worker>"):       s.handleStopWorker,
-		s.args.Templates.Render(subjects.WorkerWriteStdin, "<agent>", "<worker>"): s.handleWriteWorkerStdin,
+		proto.StartWorkerSubject("<agent>", "<worker>"):      s.handleStartWorker,
+		proto.StopWorkerSubject("<agent>", "<worker>"):       s.handleStopWorker,
+		proto.WriteWorkerStdinSubject("<agent>", "<worker>"): s.handleWriteWorkerStdin,
 	}
 	// Worker event handlers. The keys are not mapped to NATS subjects!
 	events := router.Handlers{
@@ -72,7 +73,7 @@ loop:
 
 			err := forwardMessage(s.args.OutputCh, Message{
 				msg:     msg,
-				subject: s.args.Templates.Render(subjects.Reply, s.args.ID, msg.ID()),
+				subject: proto.ReplyMessageSubject(s.args.ID, msg.ID()),
 				data:    resp,
 			})
 			if err != nil {
@@ -215,7 +216,7 @@ func (s *Service) handleWorkerStatusStopped(_ context.Context, params router.Par
 	s.removeWorker(v.WorkerID)
 
 	return Message{
-		subject: s.args.Templates.Render(subjects.WorkerStatus, s.args.ID, v.WorkerID),
+		subject: proto.UpdateWorkerStatusSubject(s.args.ID, v.WorkerID),
 		data: proto.UpdateWorkerStatus{
 			Status: int64(v.Status),
 		},
@@ -230,7 +231,7 @@ func (s *Service) handleWorkerStatusStdout(_ context.Context, _ router.Params, d
 	}
 
 	return Message{
-		subject: s.args.Templates.Render(subjects.WorkerWriteStdout, s.args.ID, v.WorkerID),
+		subject: proto.WriteWorkerStdoutSubject(s.args.ID, v.WorkerID),
 		data: proto.UpdateWorkerStdio{
 			Data: v.OutputData,
 		},
