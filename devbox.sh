@@ -23,7 +23,6 @@ agent_config() {
 -X main.ServerCertificate=$SERVER_CERTIFICATE
 -X main.UserJWT=$USER_JWT
 -X main.UserKey=$USER_KEY
--X main.CACertificate=$CA_CERTIFICATE
 -X main.Stream=$STREAM
 -X main.Consumer=$CONSUMER
 -X main.InboxPrefix=$INBOX_PREFIX
