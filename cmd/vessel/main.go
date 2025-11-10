@@ -43,7 +43,7 @@ func main() {
 		_ = connDialer.Close()
 	}()
 
-	conn, err := connect(ctx, Server, UserJWT, UserKey, ServerCertificate, connDialer)
+	conn, err := connect(ctx, Server, ServerCertificate, UserJWT, UserKey, connDialer)
 	if err != nil {
 		log.Debug("Cannot connect to the server", "server", Server, "error", err)
 		return
@@ -83,10 +83,10 @@ func main() {
 
 func connect(
 	ctx context.Context,
-	server string,
+	server,
+	serverCertificate,
 	userJWT,
-	userKey,
-	caCertificate string,
+	userKey string,
 	dialer nats.CustomDialer,
 ) (jetstream.JetStream, error) {
 	opts := []nats.Option{
@@ -106,8 +106,8 @@ func connect(
 		opts = append(opts, nats.UserJWTAndSeed(userJWT, userKey))
 	}
 
-	if caCertificate != "" {
-		opts = append(opts, nats.ClientTLSConfig(nil, decodeCertificateHandler(caCertificate)))
+	if serverCertificate != "" {
+		opts = append(opts, nats.ClientTLSConfig(nil, decodeCertificateHandler(serverCertificate)))
 	}
 
 	nc, err := nats.Connect(server, opts...)
