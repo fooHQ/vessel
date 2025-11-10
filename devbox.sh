@@ -19,9 +19,7 @@ build() {
 agent_config() {
    cat <<EOF | tr '\n' ' '
 -X main.AgentID=$FJ_AGENT_ID
--X main.ID=$ID
 -X main.ServerURL=$FJ_SERVER_URL
--X main.Server=$SERVER
 -X main.ServerCertificate=$FJ_SERVER_CERTIFICATE
 -X main.UserJWT=$FJ_USER_JWT
 -X main.UserKey=$FJ_USER_KEY
@@ -29,9 +27,6 @@ agent_config() {
 -X main.Consumer=$FJ_CONSUMER
 -X main.InboxPrefix=$FJ_INBOX_PREFIX
 -X main.ObjectStore=$FJ_OBJECT_STORE
--X main.ObjectStoreName=$OBJECT_STORE_NAME
--X main.ReconnectInterval=$RECONNECT_INTERVAL
--X main.ReconnectJitter=$RECONNECT_JITTER
 -X main.AwaitMessagesDuration=$FJ_AWAIT_MESSAGES_DURATION
 -X main.IdleDuration=$FJ_IDLE_DURATION
 -X main.IdleJitter=$FJ_IDLE_JITTER
