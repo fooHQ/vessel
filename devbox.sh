@@ -20,6 +20,7 @@ agent_config() {
    cat <<EOF | tr '\n' ' '
 -X main.ID=$ID
 -X main.Server=$SERVER
+-X main.ServerCertificate=$SERVER_CERTIFICATE
 -X main.UserJWT=$USER_JWT
 -X main.UserKey=$USER_KEY
 -X main.CACertificate=$CA_CERTIFICATE
