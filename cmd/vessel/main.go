@@ -19,9 +19,9 @@ import (
 var (
 	ID                    = ""
 	Server                = ""
+	ServerCertificate     = ""
 	UserJWT               = ""
 	UserKey               = ""
-	CACertificate         = ""
 	Stream                = ""
 	Consumer              = ""
 	InboxPrefix           = ""
@@ -43,7 +43,7 @@ func main() {
 		_ = connDialer.Close()
 	}()
 
-	conn, err := connect(ctx, Server, UserJWT, UserKey, CACertificate, connDialer)
+	conn, err := connect(ctx, Server, UserJWT, UserKey, ServerCertificate, connDialer)
 	if err != nil {
 		log.Debug("Cannot connect to the server", "server", Server, "error", err)
 		return
