@@ -17,18 +17,18 @@ import (
 )
 
 var (
-	ID                    = ""
-	Server                = ""
+	AgentID               = ""
+	ServerURL             = ""
 	ServerCertificate     = ""
 	UserJWT               = ""
 	UserKey               = ""
 	Stream                = ""
 	Consumer              = ""
 	InboxPrefix           = ""
-	ObjectStoreName       = ""
-	ReconnectInterval     = "" // time.Duration
-	ReconnectJitter       = "" // time.Duration
+	ObjectStore           = ""
 	AwaitMessagesDuration = "" // time.Duration
+	IdleDuration          = "" // time.Duration
+	IdleJitter            = "" // time.Duration
 )
 
 func main() {
@@ -43,9 +43,9 @@ func main() {
 		_ = connDialer.Close()
 	}()
 
-	conn, err := connect(ctx, Server, ServerCertificate, UserJWT, UserKey, connDialer)
+	conn, err := connect(ctx, ServerURL, ServerCertificate, UserJWT, UserKey, connDialer)
 	if err != nil {
-		log.Debug("Cannot connect to the server", "server", Server, "error", err)
+		log.Debug("Cannot connect to the server", "server", ServerURL, "error", err)
 		return
 	}
 	defer conn.Conn().Close()
@@ -62,14 +62,14 @@ func main() {
 		return
 	}
 
-	store, err := getObjectStore(ctx, conn, ObjectStoreName)
+	store, err := getObjectStore(ctx, conn, ObjectStore)
 	if err != nil {
 		log.Debug("Cannot obtain object store", "error", err)
 		return
 	}
 
 	err = vessel.New(vessel.Arguments{
-		ID:          ID,
+		ID:          AgentID,
 		Connection:  conn,
 		Stream:      stream,
 		Consumer:    consumer,
@@ -182,7 +182,7 @@ func getConsumer(ctx context.Context, conn jetstream.JetStream, stream, consumer
 }
 
 func mustGetReconnectInterval() time.Duration {
-	d, err := time.ParseDuration(ReconnectInterval)
+	d, err := time.ParseDuration(IdleDuration)
 	if err != nil {
 		panic(err)
 	}
@@ -190,7 +190,7 @@ func mustGetReconnectInterval() time.Duration {
 }
 
 func mustGetReconnectJitter() time.Duration {
-	d, err := time.ParseDuration(ReconnectJitter)
+	d, err := time.ParseDuration(IdleJitter)
 	if err != nil {
 		panic(err)
 	}
