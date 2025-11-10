@@ -18,7 +18,9 @@ build() {
 
 agent_config() {
    cat <<EOF | tr '\n' ' '
+-X main.AgentID=$AGENT_ID
 -X main.ID=$ID
+-X main.ServerURL=$SERVER_URL
 -X main.Server=$SERVER
 -X main.ServerCertificate=$SERVER_CERTIFICATE
 -X main.UserJWT=$USER_JWT
@@ -26,10 +28,13 @@ agent_config() {
 -X main.Stream=$STREAM
 -X main.Consumer=$CONSUMER
 -X main.InboxPrefix=$INBOX_PREFIX
+-X main.ObjectStore=$OBJECT_STORE
 -X main.ObjectStoreName=$OBJECT_STORE_NAME
 -X main.ReconnectInterval=$RECONNECT_INTERVAL
 -X main.ReconnectJitter=$RECONNECT_JITTER
 -X main.AwaitMessagesDuration=$AWAIT_MESSAGES_DURATION
+-X main.IdleDuration=$IDLE_DURATION
+-X main.IdleJitter=$IDLE_JITTER
 EOF
 }
 
