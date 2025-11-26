@@ -47,10 +47,10 @@ jobs:
       - uses: jetify-com/devbox-install-action@a0d2d53632934ae004f878c840055956d9f741b0 # v0.14.0
       - run: devbox run build
         env:
-          GOOS: "${{ matrix.GOOS }}"
-          GOARCH: "${{ matrix.GOARCH }}"
-          OUTPUT: build/vessel-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
-          TAGS: dev
+          OS: "${{ matrix.GOOS }}"
+          ARCH: "${{ matrix.GOARCH }}"
+          TARGET: build/vessel-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          FEATURES: dev
           # Vessel configuration variables
           FJ_AGENT_ID: inspired-stinkbug
           FJ_SERVER_URL: wss://localhost
@@ -61,9 +61,9 @@ jobs:
           FJ_CONSUMER: inspired-stinkbug
           FJ_INBOX_PREFIX: _INBOX_inspired-stinkbug
           FJ_OBJECT_STORE: inspired-stinkbug
-          FJ_AWAIT_MESSAGES_DURATION: 5s
-          FJ_IDLE_DURATION: 1m
-          FJ_IDLE_JITTER: 5s
+          VESSEL_AWAIT_MESSAGES_DURATION: 5s
+          VESSEL_IDLE_DURATION: 1m
+          VESSEL_IDLE_JITTER: 5s
 
   release:
     name: Create a release
