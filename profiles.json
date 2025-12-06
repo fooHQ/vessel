@@ -1,0 +1,134 @@
+{
+  "vessel-windows-amd64": {
+    "environment": {
+      "OS": {
+        "value": "windows"
+      },
+      "ARCH": {
+        "value": "amd64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  },
+  "vessel-windows-arm64": {
+    "environment": {
+      "OS": {
+        "value": "windows"
+      },
+      "ARCH": {
+        "value": "arm64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  },
+  "vessel-darwin-amd64": {
+    "environment": {
+      "OS": {
+        "value": "darwin"
+      },
+      "ARCH": {
+        "value": "amd64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  },
+  "vessel-darwin-arm64": {
+    "environment": {
+      "OS": {
+        "value": "darwin"
+      },
+      "ARCH": {
+        "value": "arm64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  },
+  "vessel-linux-amd64": {
+    "environment": {
+      "OS": {
+        "value": "linux"
+      },
+      "ARCH": {
+        "value": "amd64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  },
+  "vessel-linux-arm64": {
+    "environment": {
+      "OS": {
+        "value": "linux"
+      },
+      "ARCH": {
+        "value": "arm64"
+      },
+      "VESSEL_AWAIT_MESSAGES_DURATION": {
+        "value": "15s",
+        "description": "Duration to wait for messages before disconnecting from the server."
+      },
+      "VESSEL_IDLE_DURATION": {
+        "value": "45s",
+        "description": "Duration to wait before reconnecting to the server."
+      },
+      "VESSEL_IDLE_JITTER": {
+        "value": "12s",
+        "description": "Jitter to add to the idle duration."
+      }
+    }
+  }
+}
