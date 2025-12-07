@@ -148,7 +148,7 @@ func (s *Service) handleStartWorker(ctx context.Context, params router.Params, d
 		}
 	}
 
-	w, err := s.startWorker(workerID, v.File, v.Args, v.Env)
+	w, err := s.startWorker(workerID, v.Command, v.Args, v.Env)
 	if err != nil {
 		log.Debug("Cannot start worker", "error", err)
 		return proto.StartWorkerResponse{
