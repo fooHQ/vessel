@@ -144,13 +144,8 @@ func decodeCertificateHandler(s string) func() (*x509.CertPool, error) {
 			return nil, err
 		}
 
-		cert, err := x509.ParseCertificate(b)
-		if err != nil {
-			return nil, err
-		}
-
 		pool := x509.NewCertPool()
-		pool.AddCert(cert)
+		pool.AppendCertsFromPEM(b)
 		return pool, nil
 	}
 }
