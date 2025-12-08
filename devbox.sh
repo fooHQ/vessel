@@ -8,15 +8,7 @@ test() {
 }
 
 build() {
-    WITH_LDFLAGS="$(agent_config)"
-    if [ "$OS" = "windows" ]; then
-        WITH_LDFLAGS="$WITH_LDFLAGS -H windowsgui"
-    fi
-    GOOS="$OS" GOARCH="$ARCH" go build -tags "$FEATURES" -o "$TARGET" -ldflags "$WITH_LDFLAGS" ./cmd/vessel
-}
-
-agent_config() {
-   cat <<EOF | tr '\n' ' '
+    WITH_LDFLAGS="$(cat <<EOF | tr '\n' ' '
 -X main.AgentID=$FJ_AGENT_ID
 -X main.ServerURL=$FJ_SERVER_URL
 -X main.ServerCertificate=$FJ_SERVER_CERTIFICATE
@@ -30,6 +22,13 @@ agent_config() {
 -X main.IdleDuration=$VESSEL_IDLE_DURATION
 -X main.IdleJitter=$VESSEL_IDLE_JITTER
 EOF
+)"
+
+    if [ "$OS" = "windows" ]; then
+        WITH_LDFLAGS="$WITH_LDFLAGS -H windowsgui"
+    fi
+
+    GOOS="$OS" GOARCH="$ARCH" go build -tags "$FEATURES" -o "$TARGET" -ldflags "$WITH_LDFLAGS" ./cmd/vessel
 }
 
 eval $@
