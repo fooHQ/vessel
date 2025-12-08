@@ -241,7 +241,7 @@ type state struct {
 	cancel  context.CancelFunc
 }
 
-func (s *Service) startWorker(id, file string, args, env []string) (state, error) {
+func (s *Service) startWorker(id, command string, args, env []string) (state, error) {
 	_, ok := s.workers[id]
 	if ok {
 		return state{}, errors.New("worker already exists")
@@ -252,7 +252,7 @@ func (s *Service) startWorker(id, file string, args, env []string) (state, error
 	s.wg.Go(func() {
 		err := worker.New(worker.Arguments{
 			ID:          id,
-			File:        file,
+			Command:     command,
 			Args:        args,
 			Env:         env,
 			EventCh:     s.eventCh,

@@ -17,7 +17,7 @@ import (
 
 type Arguments struct {
 	ID          string
-	File        string
+	Command     string
 	Args        []string
 	Env         []string
 	EventCh     chan<- message.Msg
@@ -87,7 +87,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer runnerCancel()
 
 	wg.Go(func() {
-		code, err := run(runnerCtx, s.args.File, s.args.Args, s.args.Env, stdin, stdout, s.args.Filesystems)
+		code, err := run(runnerCtx, s.args.Command, s.args.Args, s.args.Env, stdin, stdout, s.args.Filesystems)
 		if err != nil {
 			log.Debug("Runner failed", "error", err)
 		}
