@@ -12,7 +12,10 @@ build() {
         FJ_SERVER_CERTIFICATE="/dev/null"
     fi
 
-    if [ ! -f "$FJ_SERVER_CERTIFICATE" ]; then
+    if [ -d "$FJ_SERVER_CERTIFICATE" ]; then
+        echo "$0: certificate file error: is a directory"
+        exit 1
+    elif [ ! -e "$FJ_SERVER_CERTIFICATE" ]; then
         echo "$0: certificate '$FJ_SERVER_CERTIFICATE' not found"
         exit 1
     fi
