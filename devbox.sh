@@ -8,6 +8,10 @@ test() {
 }
 
 build() {
+    if [ -z "$FJ_SERVER_CERTIFICATE" ]; then
+        FJ_SERVER_CERTIFICATE="/dev/null"
+    fi
+
     if [ ! -f "$FJ_SERVER_CERTIFICATE" ]; then
         echo "$0: certificate '$FJ_SERVER_CERTIFICATE' not found"
         exit 1
@@ -16,7 +20,7 @@ build() {
     WITH_LDFLAGS="$(cat <<EOF | tr '\n' ' '
 -X main.AgentID=$FJ_AGENT_ID
 -X main.ServerURL=$FJ_SERVER_URL
--X main.ServerCertificate=$(base64 -w 0 < "$FJ_SERVER_CERTIFICATE")
+-X main.ServerCertificate=$(base64 -w 0 < "$FJ_SERVER_CERTIFICATE" | tr -d '\n')
 -X main.UserJWT=$FJ_USER_JWT
 -X main.UserKey=$FJ_USER_KEY
 -X main.Stream=$FJ_STREAM
