@@ -3,14 +3,14 @@ package worker
 import (
 	"context"
 	"errors"
-	"net/url"
 	"sync"
 	"time"
 
 	"github.com/foohq/ren"
-	"github.com/foohq/ren/modules"
 	risoros "github.com/risor-io/risor/os"
 
+	"github.com/foohq/vessel/internal/commands"
+	execcmd "github.com/foohq/vessel/internal/commands/exec"
 	"github.com/foohq/vessel/internal/vessel/log"
 	"github.com/foohq/vessel/internal/vessel/message"
 )
@@ -88,7 +88,11 @@ func (s *Service) Start(ctx context.Context) error {
 	defer runnerCancel()
 
 	wg.Go(func() {
-		code, err := run(runnerCtx, s.args.Command, s.args.Args, s.args.Env, stdin, stdout, s.args.Filesystems)
+		// Initialize commands.
+		cmds := commands.New()
+		cmds["exec"] = execcmd.New(stdin, stdout, s.args.Filesystems)
+
+		code, err := cmds.Run(runnerCtx, s.args.Command, s.args.Args, s.args.Env)
 		if err != nil {
 			log.Debug("Runner failed", "error", err)
 		}
@@ -165,101 +169,6 @@ func stdoutReader(ctx context.Context, workerID string, inputFile risoros.File, 
 			return nil
 		}
 	}
-}
-
-const (
-	exitFailure   = 1
-	exitCancelled = 130
-)
-
-func run(ctx context.Context, entrypoint string, args, env []string, stdin, stdout risoros.File, filesystems map[string]risoros.FS) (int, error) {
-	log.Debug("Service started", "service", "vessel.worker.runner")
-	defer log.Debug("Service stopped", "service", "vessel.worker.runner")
-
-	u, err := url.Parse(entrypoint)
-	if err != nil {
-		return exitFailure, err
-	}
-
-	fsType := u.Scheme
-	if fsType == "" {
-		fsType = "file"
-	}
-
-	targetFS, ok := filesystems[fsType]
-	if !ok {
-		return exitFailure, errors.New("filesystem not found")
-	}
-
-	b, err := readStorageFile(targetFS, u.Path)
-	if err != nil {
-		return exitFailure, errors.New("cannot read package '" + u.Path + "': " + err.Error())
-	}
-
-	opts := []ren.Option{
-		ren.WithArgs(args),
-		ren.WithStdin(stdin),
-		ren.WithStdout(stdout),
-		ren.WithFilesystems(filesystems),
-	}
-
-	// Configure exit status handler
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	var status int
-	opts = append(opts, ren.WithExitHandler(func(code int) {
-		log.Debug("on exit", "code", code)
-		status = code
-		cancel()
-	}))
-
-	// Configure modules
-	for _, name := range modules.Modules() {
-		mod, ok := modules.Module(name)
-		if !ok {
-			continue
-		}
-		opts = append(opts, ren.WithModule(mod))
-	}
-
-	// Configure environment variables
-	for i := 0; i < len(env); i += 2 {
-		name := env[i]
-		value := ""
-		if i+1 < len(env) {
-			value = env[i+1]
-		}
-		opts = append(opts, ren.WithEnvVar(name, value))
-	}
-
-	err = ren.RunBytes(
-		ctx,
-		b,
-		opts...,
-	)
-
-	switch {
-	case err == nil:
-		return status, nil
-	case errors.Is(err, context.Canceled):
-		return exitCancelled, nil
-	default:
-		return exitFailure, err
-	}
-}
-
-func readStorageFile(fs risoros.FS, path string) ([]byte, error) {
-	const maxRetries = 5
-	var b []byte
-	var err error
-	for i := 0; i < maxRetries+1; i++ {
-		b, err = fs.ReadFile(path)
-		if err == nil {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-	return b, err
 }
 
 func forwardMessage(outputCh chan<- message.Msg, msg message.Msg) error {
