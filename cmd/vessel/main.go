@@ -90,7 +90,6 @@ func connect(
 	dialer nats.CustomDialer,
 ) (jetstream.JetStream, error) {
 	opts := []nats.Option{
-		nats.TLSHandshakeFirst(),
 		nats.CustomInboxPrefix(InboxPrefix),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1),
@@ -108,7 +107,11 @@ func connect(
 	}
 
 	if serverCertificate != "" {
-		opts = append(opts, nats.ClientTLSConfig(nil, decodeCertificateHandler(serverCertificate)))
+		opts = append(
+			opts,
+			nats.TLSHandshakeFirst(),
+			nats.ClientTLSConfig(nil, decodeCertificateHandler(serverCertificate)),
+		)
 	}
 
 	nc, err := nats.Connect(server, opts...)
