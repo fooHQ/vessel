@@ -11,7 +11,7 @@ import (
 
 	"github.com/foohq/vessel/internal/commands"
 	execcmd "github.com/foohq/vessel/internal/commands/exec"
-	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/vessel/message"
 )
 

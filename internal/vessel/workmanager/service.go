@@ -10,8 +10,8 @@ import (
 
 	"github.com/foohq/foojank/proto"
 
+	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/router"
-	"github.com/foohq/vessel/internal/vessel/log"
 	"github.com/foohq/vessel/internal/vessel/message"
 	"github.com/foohq/vessel/internal/vessel/worker"
 )
