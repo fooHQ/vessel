@@ -11,7 +11,7 @@ import (
 	risoros "github.com/risor-io/risor/os"
 
 	"github.com/foohq/vessel/internal/command"
-	"github.com/foohq/vessel/internal/vessel/log"
+	"github.com/foohq/vessel/internal/log"
 )
 
 type Command struct {
