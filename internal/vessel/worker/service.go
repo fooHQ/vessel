@@ -101,7 +101,6 @@ func (s *Service) Start(ctx context.Context) error {
 		if err != nil {
 			log.Debug("Cannot forward a message", "error", err)
 		}
-
 		termCh <- struct{}{}
 	})
 
@@ -174,6 +173,9 @@ const (
 )
 
 func run(ctx context.Context, entrypoint string, args, env []string, stdin, stdout risoros.File, filesystems map[string]risoros.FS) (int, error) {
+	log.Debug("Service started", "service", "vessel.worker.runner")
+	defer log.Debug("Service stopped", "service", "vessel.worker.runner")
+
 	u, err := url.Parse(entrypoint)
 	if err != nil {
 		return exitFailure, err
