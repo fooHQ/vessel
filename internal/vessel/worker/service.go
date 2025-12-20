@@ -47,7 +47,8 @@ func (s *Service) Start(ctx context.Context) error {
 		return err
 	}
 
-	termCh := make(chan struct{})
+	// Capacity must be greater than the total number of goroutines tracked by the WaitGroup.
+	termCh := make(chan struct{}, 8)
 
 	var wg sync.WaitGroup
 
@@ -114,11 +115,9 @@ func (s *Service) Start(ctx context.Context) error {
 	case <-ctx.Done():
 		for _, cancel := range cancels {
 			cancel()
-			<-termCh
 		}
 	case <-termCh:
-		// If an error occurs in one of the services, cancel all services without waiting for them to finish.
-		// Some messages may be lost in the process.
+		// If an error occurs in one of the services, cancel all services immediately.
 		for _, cancel := range cancels {
 			cancel()
 		}
