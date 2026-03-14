@@ -8,9 +8,8 @@ import (
 
 	risoros "github.com/risor-io/risor/os"
 
-	"github.com/foohq/foojank/proto"
-
 	"github.com/foohq/vessel/internal/log"
+	"github.com/foohq/vessel/internal/proto"
 	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/vessel/message"
 	"github.com/foohq/vessel/internal/vessel/worker"
@@ -42,10 +41,10 @@ func (s *Service) Start(ctx context.Context) error {
 	log.Debug("Service started", "service", "vessel.workmanager")
 	defer log.Debug("Service stopped", "service", "vessel.workmanager")
 
-	api := router.Handlers{
-		proto.StartWorkerSubject("<agent>", "<worker>"):      s.handleStartWorker,
-		proto.StopWorkerSubject("<agent>", "<worker>"):       s.handleStopWorker,
-		proto.WriteWorkerStdinSubject("<agent>", "<worker>"): s.handleWriteWorkerStdin,
+	cmd := router.Handlers{
+		proto.CmdStartWorkerSubject("<agent>", "<worker>"): s.handleStartWorker,
+		proto.CmdStopWorkerSubject("<agent>", "<worker>"):  s.handleStopWorker,
+		proto.CmdWriteStdinSubject("<agent>", "<worker>"):  s.handleWriteWorkerStdin,
 	}
 	// Worker event handlers. The keys are not mapped to NATS subjects!
 	events := router.Handlers{
@@ -57,23 +56,19 @@ loop:
 	for {
 		select {
 		case msg := <-s.args.InputCh:
-			handler, params, ok := api.Match(msg.Subject())
+			handler, params, ok := cmd.Match(msg.Subject())
 			if !ok {
 				_ = msg.Ack()
 				continue
 			}
 
-			resp := handler(ctx, params, msg.Data())
+			resp := handler(ctx, params, msg)
 			if resp == nil {
 				_ = msg.Ack()
 				continue
 			}
 
-			err := forwardMessage(s.args.OutputCh, Message{
-				msg:     msg,
-				subject: proto.ReplyMessageSubject(s.args.ID, msg.ID()),
-				data:    resp,
-			})
+			err := forwardMessage(s.args.OutputCh, resp.(message.Msg))
 			if err != nil {
 				log.Debug("Cannot forward a message", "error", err)
 				continue
@@ -131,64 +126,95 @@ loop:
 	return nil
 }
 
-func (s *Service) handleStartWorker(ctx context.Context, params router.Params, data any) any {
+func (s *Service) handleStartWorker(ctx context.Context, params router.Params, m any) any {
+	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
 		log.Debug("Missing worker ID")
-		return proto.StartWorkerResponse{
-			Error: errors.New("missing worker id"),
+		return Message{
+			msg:     msg,
+			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
+			data: proto.StartWorkerResponse{
+				Error: errors.New("missing worker id"),
+			},
 		}
 	}
 
-	v, ok := data.(proto.StartWorkerRequest)
+	v, ok := msg.Data().(proto.StartWorkerRequest)
 	if !ok {
 		log.Debug("Invalid request data")
-		return proto.StartWorkerResponse{
-			Error: errors.New("invalid request data"),
+		return Message{
+			msg:     msg,
+			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
+			data: proto.StartWorkerResponse{
+				Error: errors.New("invalid request data"),
+			},
 		}
 	}
 
 	w, err := s.startWorker(workerID, v.Command, v.Args, v.Env)
 	if err != nil {
 		log.Debug("Cannot start worker", "error", err)
-		return proto.StartWorkerResponse{
-			Error: err,
+		return Message{
+			msg:     msg,
+			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
+			data: proto.StartWorkerResponse{
+				Error: err,
+			},
 		}
 	}
 
 	s.addWorker(workerID, w)
 
-	return proto.StartWorkerResponse{}
+	return Message{
+		msg:     msg,
+		subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
+		data:    proto.StartWorkerResponse{},
+	}
 }
 
-func (s *Service) handleStopWorker(ctx context.Context, params router.Params, data any) any {
+func (s *Service) handleStopWorker(ctx context.Context, params router.Params, m any) any {
+	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
 		log.Debug("Missing worker ID")
-		return proto.StopWorkerResponse{
-			Error: errors.New("missing worker id"),
+		return Message{
+			msg:     msg,
+			subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
+			data: proto.StopWorkerResponse{
+				Error: errors.New("missing worker id"),
+			},
 		}
 	}
 
 	err := s.stopWorker(workerID)
 	if err != nil {
 		log.Debug("Cannot stop worker", "error", err)
-		return proto.StopWorkerResponse{
-			Error: err,
+		return Message{
+			msg:     msg,
+			subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
+			data: proto.StopWorkerResponse{
+				Error: err,
+			},
 		}
 	}
 
-	return proto.StopWorkerResponse{}
+	return Message{
+		msg:     msg,
+		subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
+		data:    proto.StopWorkerResponse{},
+	}
 }
 
-func (s *Service) handleWriteWorkerStdin(ctx context.Context, params router.Params, data any) any {
+func (s *Service) handleWriteWorkerStdin(ctx context.Context, params router.Params, m any) any {
+	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
 		log.Debug("Missing worker ID")
 		return nil
 	}
 
-	v, ok := data.(proto.UpdateWorkerStdio)
+	v, ok := msg.Data().(proto.UpdateWorkerStdio)
 	if !ok {
 		log.Debug("Invalid request data")
 		return nil
@@ -214,7 +240,7 @@ func (s *Service) handleWorkerStatusStopped(_ context.Context, params router.Par
 	s.removeWorker(v.WorkerID)
 
 	return Message{
-		subject: proto.UpdateWorkerStatusSubject(s.args.ID, v.WorkerID),
+		subject: proto.EvtWorkerStatusSubject(s.args.ID, v.WorkerID),
 		data: proto.UpdateWorkerStatus{
 			Status: int64(v.Status),
 		},
@@ -229,7 +255,7 @@ func (s *Service) handleWorkerStatusStdout(_ context.Context, _ router.Params, d
 	}
 
 	return Message{
-		subject: proto.WriteWorkerStdoutSubject(s.args.ID, v.WorkerID),
+		subject: proto.EvtWorkerStdoutSubject(s.args.ID, v.WorkerID),
 		data: proto.UpdateWorkerStdio{
 			Data: v.OutputData,
 		},
