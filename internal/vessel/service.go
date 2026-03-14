@@ -16,9 +16,8 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	risoros "github.com/risor-io/risor/os"
 
-	"github.com/foohq/foojank/proto"
-
 	"github.com/foohq/vessel/internal/log"
+	"github.com/foohq/vessel/internal/proto"
 	"github.com/foohq/vessel/internal/vessel/message"
 	"github.com/foohq/vessel/internal/vessel/workmanager"
 )
@@ -109,7 +108,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer monitorCancel()
 
 	wg.Go(func() {
-		err := monitor(monitorCtx, s.args.Connection, proto.UpdateClientInfoSubject(s.args.ID), publisherInCh)
+		err := monitor(monitorCtx, s.args.Connection, proto.EvtAgentInfoSubject(s.args.ID), publisherInCh)
 		if err != nil {
 			log.Debug("Monitor error", "error", err)
 		}
