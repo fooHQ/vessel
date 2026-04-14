@@ -7,20 +7,20 @@ import (
 	"time"
 
 	"github.com/foohq/ren"
+	"github.com/foohq/ren/builtins"
 	"github.com/foohq/ren/modules"
-	risoros "github.com/risor-io/risor/os"
 
 	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/internal/log"
 )
 
 type Command struct {
-	stdin       risoros.File
-	stdout      risoros.File
-	filesystems map[string]risoros.FS
+	stdin       ren.File
+	stdout      ren.File
+	filesystems map[string]ren.FS
 }
 
-func New(stdin, stdout risoros.File, filesystems map[string]risoros.FS) *Command {
+func New(stdin, stdout ren.File, filesystems map[string]ren.FS) *Command {
 	return &Command{
 		stdin:       stdin,
 		stdout:      stdout,
@@ -48,7 +48,10 @@ func (c *Command) Run(ctx context.Context, args, env []string) (int, error) {
 		ren.WithArgs(args),
 		ren.WithStdin(c.stdin),
 		ren.WithStdout(c.stdout),
-		ren.WithFilesystems(c.filesystems),
+	}
+
+	for scheme, fs := range c.filesystems {
+		opts = append(opts, ren.WithFilesystem(scheme, fs))
 	}
 
 	// Configure exit status handler
@@ -61,24 +64,26 @@ func (c *Command) Run(ctx context.Context, args, env []string) (int, error) {
 		cancel()
 	}))
 
+	// Configure builtins
+	for _, builtin := range builtins.Builtins() {
+		opts = append(opts, ren.WithBuiltin(builtin))
+	}
+
 	// Configure modules
-	for _, name := range modules.Modules() {
-		mod, ok := modules.Module(name)
-		if !ok {
-			continue
-		}
-		opts = append(opts, ren.WithModule(mod))
+	for _, module := range modules.Modules() {
+		opts = append(opts, ren.WithModule(module))
 	}
 
 	// Configure environment variables
-	for i := 0; i < len(env); i += 2 {
+	// TODO: ren does not support environment variables yet
+	/*for i := 0; i < len(env); i += 2 {
 		name := env[i]
 		value := ""
 		if i+1 < len(env) {
 			value = env[i+1]
 		}
 		opts = append(opts, ren.WithEnvVar(name, value))
-	}
+	}*/
 
 	err = ren.RunBytes(
 		ctx,
