@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	risoros "github.com/risor-io/risor/os"
+	"github.com/foohq/ren"
 
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/proto"
@@ -17,7 +17,7 @@ import (
 
 type Arguments struct {
 	ID          string
-	Filesystems map[string]risoros.FS
+	Filesystems map[string]ren.FS
 	InputCh     <-chan message.Msg
 	OutputCh    chan<- message.Msg
 }
