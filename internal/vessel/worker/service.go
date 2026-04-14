@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/foohq/ren"
-	risoros "github.com/risor-io/risor/os"
 
 	"github.com/foohq/vessel/internal/commands"
 	execcmd "github.com/foohq/vessel/internal/commands/exec"
@@ -22,7 +21,7 @@ type Arguments struct {
 	Env         []string
 	EventCh     chan<- message.Msg
 	StdinCh     <-chan []byte
-	Filesystems map[string]risoros.FS
+	Filesystems map[string]ren.FS
 }
 
 type Service struct {
@@ -131,7 +130,7 @@ func (s *Service) Start(ctx context.Context) error {
 	return nil
 }
 
-func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile risoros.File) error {
+func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile ren.File) error {
 	log.Debug("Service started", "service", "vessel.worker.stdinwriter")
 	defer log.Debug("Service stopped", "service", "vessel.worker.stdinwriter")
 
@@ -149,7 +148,7 @@ func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile risoros.
 	}
 }
 
-func stdoutReader(ctx context.Context, workerID string, inputFile risoros.File, outputCh chan<- message.Msg) error {
+func stdoutReader(ctx context.Context, workerID string, inputFile ren.File, outputCh chan<- message.Msg) error {
 	log.Debug("Service started", "service", "vessel.worker.stdoutwriter")
 	defer log.Debug("Service stopped", "service", "vessel.worker.stdoutwriter")
 

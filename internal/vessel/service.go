@@ -9,12 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/foohq/ren"
 	memfs "github.com/foohq/ren-memfs"
 	natsfs "github.com/foohq/ren-natsfs"
-	localfs "github.com/foohq/ren/filesystems/local"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-	risoros "github.com/risor-io/risor/os"
 
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/proto"
@@ -44,12 +43,6 @@ func (s *Service) Start(ctx context.Context) error {
 	log.Debug("Service started", "service", "vessel", "id", s.args.ID)
 	defer log.Debug("Service stopped", "service", "vessel", "id", s.args.ID)
 
-	fileFS, err := localfs.NewFS()
-	if err != nil {
-		log.Debug("Cannot instantiate local fs", "error", err)
-		return err
-	}
-
 	memFS, err := memfs.NewFS()
 	if err != nil {
 		log.Debug("Cannot instantiate mem fs", "error", err)
@@ -65,8 +58,7 @@ func (s *Service) Start(ctx context.Context) error {
 		_ = natsFS.Close()
 	}()
 
-	filesystems := map[string]risoros.FS{
-		"file": fileFS,
+	filesystems := map[string]ren.FS{
 		"mem":  memFS,
 		"nats": natsFS,
 	}
