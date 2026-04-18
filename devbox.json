@@ -2,7 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.6/.schema/devbox.schema.json",
   "packages": [
     "go@1.26",
-    "golangci-lint@2.11"
+    "golangci-lint@2.11",
+    "python3@latest"
   ],
   "env": {
     "GOROOT":      "",
@@ -14,14 +15,14 @@
       "echo 'Welcome to devbox!' > /dev/null"
     ],
     "scripts": {
+      "build": [
+        "./tasks.py build"
+      ],
       "test": [
-        "./devbox.sh test"
+        "./tasks.py test"
       ],
       "lint": [
-        "golangci-lint run --timeout 10m"
-      ],
-      "build": [
-        "./devbox.sh build"
+        "./tasks.py lint"
       ]
     }
   }
