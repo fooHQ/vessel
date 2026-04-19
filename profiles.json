@@ -1,12 +1,6 @@
 {
-  "vessel-windows-amd64": {
+  "defaults": {
     "environment": {
-      "OS": {
-        "value": "windows"
-      },
-      "ARCH": {
-        "value": "amd64"
-      },
       "VESSEL_AWAIT_MESSAGES_DURATION": {
         "value": "15s",
         "description": "Duration to wait for messages before disconnecting from the server."
@@ -21,114 +15,36 @@
       }
     }
   },
-  "vessel-windows-arm64": {
-    "environment": {
-      "OS": {
-        "value": "windows"
-      },
-      "ARCH": {
-        "value": "arm64"
-      },
-      "VESSEL_AWAIT_MESSAGES_DURATION": {
-        "value": "15s",
-        "description": "Duration to wait for messages before disconnecting from the server."
-      },
-      "VESSEL_IDLE_DURATION": {
-        "value": "45s",
-        "description": "Duration to wait before reconnecting to the server."
-      },
-      "VESSEL_IDLE_JITTER": {
-        "value": "12s",
-        "description": "Jitter to add to the idle duration."
-      }
-    }
-  },
-  "vessel-darwin-amd64": {
-    "environment": {
-      "OS": {
-        "value": "darwin"
-      },
-      "ARCH": {
-        "value": "amd64"
-      },
-      "VESSEL_AWAIT_MESSAGES_DURATION": {
-        "value": "15s",
-        "description": "Duration to wait for messages before disconnecting from the server."
-      },
-      "VESSEL_IDLE_DURATION": {
-        "value": "45s",
-        "description": "Duration to wait before reconnecting to the server."
-      },
-      "VESSEL_IDLE_JITTER": {
-        "value": "12s",
-        "description": "Jitter to add to the idle duration."
-      }
-    }
-  },
-  "vessel-darwin-arm64": {
-    "environment": {
-      "OS": {
-        "value": "darwin"
-      },
-      "ARCH": {
-        "value": "arm64"
-      },
-      "VESSEL_AWAIT_MESSAGES_DURATION": {
-        "value": "15s",
-        "description": "Duration to wait for messages before disconnecting from the server."
-      },
-      "VESSEL_IDLE_DURATION": {
-        "value": "45s",
-        "description": "Duration to wait before reconnecting to the server."
-      },
-      "VESSEL_IDLE_JITTER": {
-        "value": "12s",
-        "description": "Jitter to add to the idle duration."
-      }
-    }
-  },
-  "vessel-linux-amd64": {
-    "environment": {
-      "OS": {
-        "value": "linux"
-      },
-      "ARCH": {
-        "value": "amd64"
-      },
-      "VESSEL_AWAIT_MESSAGES_DURATION": {
-        "value": "15s",
-        "description": "Duration to wait for messages before disconnecting from the server."
-      },
-      "VESSEL_IDLE_DURATION": {
-        "value": "45s",
-        "description": "Duration to wait before reconnecting to the server."
-      },
-      "VESSEL_IDLE_JITTER": {
-        "value": "12s",
-        "description": "Jitter to add to the idle duration."
-      }
-    }
-  },
-  "vessel-linux-arm64": {
-    "environment": {
-      "OS": {
-        "value": "linux"
-      },
-      "ARCH": {
-        "value": "arm64"
-      },
-      "VESSEL_AWAIT_MESSAGES_DURATION": {
-        "value": "15s",
-        "description": "Duration to wait for messages before disconnecting from the server."
-      },
-      "VESSEL_IDLE_DURATION": {
-        "value": "45s",
-        "description": "Duration to wait before reconnecting to the server."
-      },
-      "VESSEL_IDLE_JITTER": {
-        "value": "12s",
-        "description": "Jitter to add to the idle duration."
-      }
+  "profiles": {
+    "vessel-windows-amd64": {
+      "OS": "windows",
+      "ARCH": "amd64",
+      "environment": {}
+    },
+    "vessel-windows-arm64": {
+      "OS": "windows",
+      "ARCH": "arm64",
+      "environment": {}
+    },
+    "vessel-darwin-amd64": {
+      "OS": "darwin",
+      "ARCH": "amd64",
+      "environment": {}
+    },
+    "vessel-darwin-arm64": {
+      "OS": "darwin",
+      "ARCH": "arm64",
+      "environment": {}
+    },
+    "vessel-linux-amd64": {
+      "OS": "linux",
+      "ARCH": "amd64",
+      "environment": {}
+    },
+    "vessel-linux-arm64": {
+      "OS": "linux",
+      "ARCH": "arm64",
+      "environment": {}
     }
   }
 }
