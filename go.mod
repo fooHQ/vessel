@@ -5,7 +5,7 @@ go 1.26
 require (
 	capnproto.org/go/capnp/v3 v3.1.0-alpha.2
 	github.com/foohq/foojank-proto/go/agent v0.0.0-20260320075034-4f07002586ba
-	github.com/foohq/ren v0.2.0-rc1
+	github.com/foohq/ren v0.2.0-rc2
 	github.com/foohq/ren-memfs v0.0.0-20260414063427-182fdf01cc45
 	github.com/foohq/ren-natsfs v0.0.0-20260414063815-487081cc8ffc
 	github.com/lmittmann/tint v1.1.3

@@ -12,8 +12,8 @@ github.com/deepnoodle-ai/wonton v0.0.29 h1:ypjEoD8gUCvQwjJ1O8d8FZRlXWsxM68BYyFoa
 github.com/deepnoodle-ai/wonton v0.0.29/go.mod h1:oyogeHwAHPrVxZ7jtik55Jnj6CwC1jkF+PfHpCRlUGA=
 github.com/foohq/foojank-proto/go/agent v0.0.0-20260320075034-4f07002586ba h1:m+/V2dQNgDNS0mkfKzxBRIk3YJfof+wg8jEv+kdLnAw=
 github.com/foohq/foojank-proto/go/agent v0.0.0-20260320075034-4f07002586ba/go.mod h1:E4dRDkaX0ohpnBkHmc3KXK1txXuAeNUnubutnsEmkC0=
-github.com/foohq/ren v0.2.0-rc1 h1:BUPVJuUIuA4vQI6XFbOMGRclGfLeJ3FLvxhIfC9MffY=
-github.com/foohq/ren v0.2.0-rc1/go.mod h1:ah+dbKUgJy8X7EG/QuMq5Kbsn7tqR8CiYtHfCvcURk8=
+github.com/foohq/ren v0.2.0-rc2 h1:yBxoaKHg6gQaC2u7irAANrYCTLdO2Q8XqQ02fcnULQc=
+github.com/foohq/ren v0.2.0-rc2/go.mod h1:ah+dbKUgJy8X7EG/QuMq5Kbsn7tqR8CiYtHfCvcURk8=
 github.com/foohq/ren-memfs v0.0.0-20260414063427-182fdf01cc45 h1:vZ+la0OOxGytfcc7h8grasz+qwpNSlZNvailG5n8FBo=
 github.com/foohq/ren-memfs v0.0.0-20260414063427-182fdf01cc45/go.mod h1:HJv0rzpa0L5lUAhgoXwcHm2dttOjn92usSMzKuO5/l0=
 github.com/foohq/ren-natsfs v0.0.0-20260414063815-487081cc8ffc h1:oY6fpUqPW44HZ114gnxNI0aMz++iTSUqPwiFxJFIDdA=
