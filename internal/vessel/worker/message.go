@@ -45,7 +45,7 @@ func (e EventWorkerOutput) Ack() error {
 
 type EventWorkerStopped struct {
 	WorkerID string
-	Status   int
+	Status   int64
 	Error    error
 }
 
