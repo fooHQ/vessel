@@ -8,8 +8,9 @@ import (
 
 	"github.com/foohq/ren"
 
+	proto "github.com/foohq/foojank-proto/go"
+
 	"github.com/foohq/vessel/internal/log"
-	"github.com/foohq/vessel/internal/proto"
 	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/vessel/message"
 	"github.com/foohq/vessel/internal/vessel/worker"
