@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
+	proto "github.com/foohq/foojank-proto/go"
+
 	"github.com/foohq/vessel/internal/command"
-	"github.com/foohq/vessel/internal/proto"
 )
 
 type Commands map[string]command.Command
