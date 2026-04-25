@@ -10,8 +10,8 @@ github.com/deepnoodle-ai/risor/v2 v2.1.0 h1:2MasWe0uJUNIaKvmd0ru1a64eXGdGakV3Klr
 github.com/deepnoodle-ai/risor/v2 v2.1.0/go.mod h1:XwfyjmojSwk5HQkWsNhrkxu6MqpsXG1XGVNXyQ+c3Zo=
 github.com/deepnoodle-ai/wonton v0.0.29 h1:ypjEoD8gUCvQwjJ1O8d8FZRlXWsxM68BYyFoa2OxtI0=
 github.com/deepnoodle-ai/wonton v0.0.29/go.mod h1:oyogeHwAHPrVxZ7jtik55Jnj6CwC1jkF+PfHpCRlUGA=
-github.com/foohq/foojank-proto/go/agent v0.0.0-20260425103354-422a2302414a h1:ZXw9jVGpeziwf7mfBzqwpV56OIqAMuBaQ0xX0yjX1/I=
-github.com/foohq/foojank-proto/go/agent v0.0.0-20260425103354-422a2302414a/go.mod h1:E4dRDkaX0ohpnBkHmc3KXK1txXuAeNUnubutnsEmkC0=
+github.com/foohq/foojank-proto/go v0.0.0-20260425124254-6ae9d7914485 h1:6cQnSA5NFJ2B0FuarP88oefoYgbNMQlzj/Tkc/rUW7M=
+github.com/foohq/foojank-proto/go v0.0.0-20260425124254-6ae9d7914485/go.mod h1:/ewmylpPY1g2MHL5leFO9wDCMf6ZmKCtTgyQZpT1BoI=
 github.com/foohq/ren v0.2.0-rc2 h1:yBxoaKHg6gQaC2u7irAANrYCTLdO2Q8XqQ02fcnULQc=
 github.com/foohq/ren v0.2.0-rc2/go.mod h1:ah+dbKUgJy8X7EG/QuMq5Kbsn7tqR8CiYtHfCvcURk8=
 github.com/foohq/ren-memfs v0.0.0-20260414063427-182fdf01cc45 h1:vZ+la0OOxGytfcc7h8grasz+qwpNSlZNvailG5n8FBo=
