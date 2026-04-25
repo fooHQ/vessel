@@ -3,8 +3,7 @@ module github.com/foohq/vessel
 go 1.26
 
 require (
-	capnproto.org/go/capnp/v3 v3.1.0-alpha.2
-	github.com/foohq/foojank-proto/go/agent v0.0.0-20260425103354-422a2302414a
+	github.com/foohq/foojank-proto/go v0.0.0-20260425124254-6ae9d7914485
 	github.com/foohq/ren v0.2.0-rc2
 	github.com/foohq/ren-memfs v0.0.0-20260414063427-182fdf01cc45
 	github.com/foohq/ren-natsfs v0.0.0-20260414063815-487081cc8ffc
@@ -15,6 +14,7 @@ require (
 )
 
 require (
+	capnproto.org/go/capnp/v3 v3.1.0-alpha.2 // indirect
 	github.com/antithesishq/antithesis-sdk-go v0.7.0 // indirect
 	github.com/colega/zeropool v0.0.0-20230505084239-6fb4a4f75381 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
