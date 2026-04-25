@@ -244,6 +244,7 @@ func (s *Service) handleWorkerStatusStopped(_ context.Context, params router.Par
 		subject: proto.EvtWorkerStatusSubject(s.args.ID, v.WorkerID),
 		data: proto.UpdateWorkerStatus{
 			Status: v.Status,
+			Error:  v.Error,
 		},
 	}
 }
