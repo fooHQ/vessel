@@ -2,6 +2,13 @@ package proto
 
 import capnp "github.com/foohq/foojank-proto/go/agent"
 
+const (
+	ExitSuccess         = capnp.ExitSuccess
+	ExitFailure         = capnp.ExitFailure
+	ExitCommandNotFound = capnp.ExitCommandNotFound
+	ExitInterrupted     = capnp.ExitInterrupted
+)
+
 // UpdateWorkerStatus is used to update the status of a worker.
 type UpdateWorkerStatus struct {
 	Status int64
