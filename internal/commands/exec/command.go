@@ -10,8 +10,9 @@ import (
 	"github.com/foohq/ren/builtins"
 	"github.com/foohq/ren/modules"
 
+	proto "github.com/foohq/foojank-proto/go"
+
 	"github.com/foohq/vessel/internal/log"
-	"github.com/foohq/vessel/internal/proto"
 )
 
 type Command struct {
