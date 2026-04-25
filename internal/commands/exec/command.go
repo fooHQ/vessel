@@ -10,8 +10,8 @@ import (
 	"github.com/foohq/ren/builtins"
 	"github.com/foohq/ren/modules"
 
-	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/internal/log"
+	"github.com/foohq/vessel/internal/proto"
 )
 
 type Command struct {
@@ -28,20 +28,20 @@ func New(stdin, stdout ren.File, filesystems map[string]ren.FS) *Command {
 	}
 }
 
-func (c *Command) Run(ctx context.Context, args, env []string) (int, error) {
+func (c *Command) Run(ctx context.Context, args, env []string) (int64, error) {
 	if len(args) == 0 {
-		return command.ExitFailure, errors.New("missing package path")
+		return proto.ExitFailure, errors.New("missing package path")
 	}
 
 	pkg := args[0]
 	u, err := url.Parse(pkg)
 	if err != nil {
-		return command.ExitFailure, err
+		return proto.ExitFailure, err
 	}
 
 	b, err := c.readFile(ctx, u)
 	if err != nil {
-		return command.ExitFailure, errors.New("cannot read package '" + u.Path + "': " + err.Error())
+		return proto.ExitFailure, errors.New("cannot read package '" + u.Path + "': " + err.Error())
 	}
 
 	opts := []ren.Option{
@@ -57,10 +57,10 @@ func (c *Command) Run(ctx context.Context, args, env []string) (int, error) {
 	// Configure exit status handler
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	var status int
+	status := proto.ExitSuccess
 	opts = append(opts, ren.WithExitHandler(func(code int) {
 		log.Debug("on exit", "code", code)
-		status = code
+		status = int64(code)
 		cancel()
 	}))
 
@@ -95,9 +95,9 @@ func (c *Command) Run(ctx context.Context, args, env []string) (int, error) {
 	case err == nil:
 		return status, nil
 	case errors.Is(err, context.Canceled):
-		return command.ExitCancelled, nil
+		return proto.ExitInterrupted, nil
 	default:
-		return command.ExitFailure, err
+		return proto.ExitFailure, err
 	}
 }
 
