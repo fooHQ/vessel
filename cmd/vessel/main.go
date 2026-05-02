@@ -50,12 +50,6 @@ func main() {
 	}
 	defer conn.Conn().Close()
 
-	stream, err := getStream(ctx, conn, Stream)
-	if err != nil {
-		log.Debug("Cannot obtain stream", "error", err)
-		return
-	}
-
 	consumer, err := getConsumer(ctx, conn, Stream, Consumer)
 	if err != nil {
 		log.Debug("Cannot obtain durable consumer", "error", err)
@@ -71,7 +65,6 @@ func main() {
 	err = vessel.New(vessel.Arguments{
 		ID:          AgentID,
 		Connection:  conn,
-		Stream:      stream,
 		Consumer:    consumer,
 		ObjectStore: store,
 	}).Start(ctx)
@@ -151,21 +144,6 @@ func decodeCertificateHandler(s string) func() (*x509.CertPool, error) {
 		pool.AppendCertsFromPEM(b)
 		return pool, nil
 	}
-}
-
-func getStream(ctx context.Context, conn jetstream.JetStream, stream string) (jetstream.Stream, error) {
-	s, err := conn.Stream(ctx, stream)
-	if err != nil {
-		return nil, err
-	}
-
-	// IMPORTANT: Info is called so that StreamInfo is cached and retrievable with CachedInfo().
-	_, err = s.Info(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
 }
 
 func getObjectStore(ctx context.Context, conn jetstream.JetStream, store string) (jetstream.ObjectStore, error) {

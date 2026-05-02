@@ -25,7 +25,6 @@ import (
 type Arguments struct {
 	ID          string
 	Connection  jetstream.JetStream
-	Stream      jetstream.Stream
 	Consumer    jetstream.Consumer
 	ObjectStore jetstream.ObjectStore
 }
