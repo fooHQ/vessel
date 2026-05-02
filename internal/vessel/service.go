@@ -215,7 +215,7 @@ func consumer(ctx context.Context, consumer jetstream.Consumer, outputCh chan me
 
 // TODO: messages should be aggregated so that CreateWorkerRequest can be canceled by StopWorkerRequest.
 
-func publisher(ctx context.Context, conn jetstream.JetStream, inputCh <-chan message.Msg) error {
+func publisher(ctx context.Context, publisher jetstream.Publisher, inputCh <-chan message.Msg) error {
 	log.Debug("Service started", "service", "vessel.publisher")
 	defer log.Debug("Service stopped", "service", "vessel.publisher")
 
@@ -235,7 +235,7 @@ loop:
 				continue
 			}
 
-			_, err = conn.PublishAsync(
+			_, err = publisher.PublishAsync(
 				msg.Subject(),
 				data,
 				opts...,
@@ -253,9 +253,9 @@ loop:
 	}
 
 	select {
-	case <-conn.PublishAsyncComplete():
+	case <-publisher.PublishAsyncComplete():
 	case <-time.After(5 * time.Second):
-		log.Debug("Some messages were not published", "lost", conn.PublishAsyncPending(), "error", "timeout while waiting for publish to complete")
+		log.Debug("Some messages were not published", "lost", publisher.PublishAsyncPending(), "error", "timeout while waiting for publish to complete")
 	}
 
 	return nil
