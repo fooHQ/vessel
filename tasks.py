@@ -28,6 +28,7 @@ def build():
     features = os.environ["FEATURES"]
 
     ldflags_parts = [
+        f"-s -w",
         f"-X main.AgentID={os.environ['FJ_AGENT_ID']}",
         f"-X main.ServerURL={os.environ['FJ_SERVER_URL']}",
         f"-X main.ServerCertificate={cert_b64}",
