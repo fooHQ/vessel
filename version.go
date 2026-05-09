@@ -1,4 +1,4 @@
-package foojank
+package vessel
 
 import (
 	_ "embed"
