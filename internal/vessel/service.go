@@ -3,6 +3,7 @@ package vessel
 import (
 	"context"
 	"errors"
+	"iter"
 	"os"
 	"os/user"
 	"runtime"
@@ -25,7 +26,7 @@ import (
 type Arguments struct {
 	ID          string
 	Connection  jetstream.JetStream
-	Consumer    jetstream.Consumer
+	Consumer    Consumer
 	ObjectStore jetstream.ObjectStore
 }
 
@@ -144,71 +145,26 @@ func (s *Service) Start(ctx context.Context) error {
 	return nil
 }
 
-var _ message.Msg = consumerMessage{}
-
-type consumerMessage struct {
-	msg  jetstream.Msg
-	data any
+type Consumer interface {
+	Messages(context.Context) iter.Seq2[message.Msg, error]
 }
 
-func (m consumerMessage) ID() string {
-	return m.msg.Headers().Get(nats.MsgIdHdr)
-}
-
-func (m consumerMessage) Subject() string {
-	return m.msg.Subject()
-}
-
-func (m consumerMessage) Data() any {
-	return m.data
-}
-
-func (m consumerMessage) Ack() error {
-	return m.msg.Ack()
-}
-
-func consumer(ctx context.Context, consumer jetstream.Consumer, outputCh chan message.Msg) error {
+func consumer(ctx context.Context, consumer Consumer, outputCh chan message.Msg) error {
 	log.Debug("Service started", "service", "vessel.consumer")
 	defer log.Debug("Service stopped", "service", "vessel.consumer")
 
-	msgs, err := consumer.Messages()
-	if err != nil {
-		log.Debug("Cannot obtain message context", "error", err)
-		return err
-	}
-
-	var wg sync.WaitGroup
-	wg.Go(func() {
-		for {
-			msg, err := msgs.Next()
-			if err != nil {
-				if errors.Is(err, jetstream.ErrMsgIteratorClosed) {
-					return
-				}
-				continue
-			}
-
-			data, err := proto.Unmarshal(msg.Data())
-			if err != nil {
-				log.Debug("Cannot decode a message", "error", err)
-				_ = msg.Ack()
-				continue
-			}
-
-			err = forwardMessage(outputCh, consumerMessage{
-				msg:  msg,
-				data: data,
-			})
-			if err != nil {
-				log.Debug("Cannot forward a message", "error", err)
-				continue
-			}
+	for msg, err := range consumer.Messages(ctx) {
+		if err != nil {
+			log.Debug("Cannot read a message", "error", err)
+			return err
 		}
-	})
 
-	<-ctx.Done()
-	msgs.Stop()
-	wg.Wait()
+		err = forwardMessage(outputCh, msg)
+		if err != nil {
+			log.Debug("Cannot forward a message", "error", err)
+			continue
+		}
+	}
 
 	return nil
 }
