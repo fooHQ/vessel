@@ -6,6 +6,8 @@ import (
 	"encoding/base64"
 	"os"
 	"os/signal"
+	"os/user"
+	"runtime"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -59,8 +61,7 @@ func main() {
 	}
 
 	err = vessel.New(vessel.Arguments{
-		ID:         AgentID,
-		Connection: conn,
+		ID: AgentID,
 		Consumer: consumer.New(consumer.Arguments{
 			Connection: conn,
 			Stream:     Stream,
@@ -70,6 +71,12 @@ func main() {
 			Connection: conn,
 		}),
 		ObjectStore: store,
+		HostAttrs: vessel.HostAttributes{
+			Username: getUsername,
+			Hostname: getHostname,
+			System:   getSystem,
+			Address:  getAddress(conn.Conn()),
+		},
 	}).Start(ctx)
 	if err != nil {
 		log.Debug("Cannot start the agent", "error", err)
@@ -175,6 +182,36 @@ func mustGetAwaitMessagesDuration() time.Duration {
 		panic(err)
 	}
 	return d
+}
+
+func getUsername() string {
+	usr, err := user.Current()
+	if err != nil {
+		return ""
+	}
+	return usr.Username
+}
+
+func getHostname() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return ""
+	}
+	return hostname
+}
+
+func getSystem() string {
+	return runtime.GOOS
+}
+
+func getAddress(nc *nats.Conn) func() string {
+	return func() string {
+		ip, err := nc.GetClientIP()
+		if err != nil {
+			return ""
+		}
+		return ip.String()
+	}
 }
 
 func connected(_ *nats.Conn) {
