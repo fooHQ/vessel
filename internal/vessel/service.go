@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"iter"
-	"os"
-	"os/user"
-	"runtime"
 	"sync"
 	"time"
 
@@ -28,6 +25,7 @@ type Arguments struct {
 	Connection  jetstream.JetStream
 	Consumer    Consumer
 	Publisher   Publisher
+	HostAttrs   HostAttributes
 	ObjectStore jetstream.ObjectStore
 }
 
@@ -102,7 +100,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer monitorCancel()
 
 	wg.Go(func() {
-		err := monitor(monitorCtx, s.args.Connection, proto.EvtAgentInfoSubject(s.args.ID), publisherInCh)
+		err := monitor(monitorCtx, s.args.Connection, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
 		if err != nil {
 			log.Debug("Monitor error", "error", err)
 		}
@@ -237,7 +235,7 @@ func (m monitorMessage) Data() any {
 	return m.data
 }
 
-func monitor(ctx context.Context, conn jetstream.JetStream, subject string, outputCh chan<- message.Msg) error {
+func monitor(ctx context.Context, conn jetstream.JetStream, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
 	log.Debug("Service started", "service", "vessel.monitor")
 	defer log.Debug("Service stopped", "service", "vessel.monitor")
 
@@ -271,10 +269,10 @@ func monitor(ctx context.Context, conn jetstream.JetStream, subject string, outp
 			case outputCh <- monitorMessage{
 				subject: subject,
 				data: proto.UpdateClientInfo{
-					Username: getUsername(),
-					Hostname: getHostname(),
-					System:   getSystem(),
-					Address:  getAddress(conn.Conn()),
+					Username: attrs.Username(),
+					Hostname: attrs.Hostname(),
+					System:   attrs.System(),
+					Address:  attrs.Address(),
 				},
 			}:
 			case <-time.After(3 * time.Second):
@@ -288,32 +286,11 @@ func monitor(ctx context.Context, conn jetstream.JetStream, subject string, outp
 	}
 }
 
-func getUsername() string {
-	usr, err := user.Current()
-	if err != nil {
-		return ""
-	}
-	return usr.Username
-}
-
-func getHostname() string {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return ""
-	}
-	return hostname
-}
-
-func getSystem() string {
-	return runtime.GOOS
-}
-
-func getAddress(nc *nats.Conn) string {
-	ip, err := nc.GetClientIP()
-	if err != nil {
-		return ""
-	}
-	return ip.String()
+type HostAttributes struct {
+	Username func() string
+	Hostname func() string
+	System   func() string
+	Address  func() string
 }
 
 func forwardMessage(outputCh chan<- message.Msg, msg message.Msg) error {
