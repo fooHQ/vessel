@@ -10,7 +10,6 @@ import (
 	"github.com/foohq/ren"
 	memfs "github.com/foohq/ren-memfs"
 	natsfs "github.com/foohq/ren-natsfs"
-	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
 	"github.com/foohq/foojank-proto/go"
@@ -22,7 +21,6 @@ import (
 
 type Arguments struct {
 	ID          string
-	Connection  jetstream.JetStream
 	Consumer    Consumer
 	Publisher   Publisher
 	HostAttrs   HostAttributes
@@ -96,13 +94,13 @@ func (s *Service) Start(ctx context.Context) error {
 		termCh <- struct{}{}
 	})
 
-	monitorCtx, monitorCancel := context.WithCancel(context.Background())
-	defer monitorCancel()
+	beaconCtx, beaconCancel := context.WithCancel(context.Background())
+	defer beaconCancel()
 
 	wg.Go(func() {
-		err := monitor(monitorCtx, s.args.Connection, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
+		err := beacon(beaconCtx, s.args.Publisher, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
 		if err != nil {
-			log.Debug("Monitor error", "error", err)
+			log.Debug("Beacon error", "error", err)
 		}
 		termCh <- struct{}{}
 	})
@@ -121,7 +119,7 @@ func (s *Service) Start(ctx context.Context) error {
 	cancels := []context.CancelFunc{
 		consumerCancel,
 		workManagerCancel,
-		monitorCancel,
+		beaconCancel,
 		publisherCancel,
 	}
 
@@ -172,6 +170,7 @@ func consumer(ctx context.Context, consumer Consumer, outputCh chan message.Msg)
 
 type Publisher interface {
 	Publish(context.Context, message.Msg) error
+	Status() Status
 }
 
 func publisher(ctx context.Context, publisher Publisher, inputCh <-chan message.Msg) error {
@@ -212,61 +211,57 @@ loop:
 	return nil
 }
 
-var _ message.Msg = monitorMessage{}
+var _ message.Msg = beaconMessage{}
 
-type monitorMessage struct {
+type beaconMessage struct {
 	subject string
 	data    any
 }
 
-func (m monitorMessage) ID() string {
+func (m beaconMessage) ID() string {
 	return ""
 }
 
-func (m monitorMessage) Ack() error {
+func (m beaconMessage) Ack() error {
 	return message.ErrUnsupported
 }
 
-func (m monitorMessage) Subject() string {
+func (m beaconMessage) Subject() string {
 	return m.subject
 }
 
-func (m monitorMessage) Data() any {
+func (m beaconMessage) Data() any {
 	return m.data
 }
 
-func monitor(ctx context.Context, conn jetstream.JetStream, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
-	log.Debug("Service started", "service", "vessel.monitor")
-	defer log.Debug("Service stopped", "service", "vessel.monitor")
+type Connector interface {
+	Status
+}
 
+func beacon(ctx context.Context, publisher Publisher, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
+	log.Debug("Service started", "service", "vessel.beacon")
+	defer log.Debug("Service stopped", "service", "vessel.beacon")
+
+	lastStatus := publisher.Status()
 	triggerCh := make(chan struct{}, 2)
-
-	if conn.Conn().Status() == nats.CONNECTED {
-		triggerCh <- struct{}{}
-	}
+	triggerCh <- struct{}{}
 
 	for {
 		select {
-		case status := <-conn.Conn().StatusChanged():
-			log.Debug("Service status", "status", status.String())
-
-			if status != nats.CONNECTED {
+		case <-time.After(5 * time.Second):
+			status := publisher.Status()
+			if status == lastStatus {
 				continue
 			}
-
-			triggerCh <- struct{}{}
-
-		// TODO: this should be configurable!
-		case <-time.After(55 * time.Minute):
-			if conn.Conn().Status() != nats.CONNECTED {
-				continue
-			}
-
+			lastStatus = status
 			triggerCh <- struct{}{}
 
 		case <-triggerCh:
-			select {
-			case outputCh <- monitorMessage{
+			if publisher.Status() != StatusConnected {
+				continue
+			}
+
+			err := forwardMessage(outputCh, beaconMessage{
 				subject: subject,
 				data: proto.UpdateClientInfo{
 					Username: getUsername(attrs),
@@ -274,9 +269,9 @@ func monitor(ctx context.Context, conn jetstream.JetStream, subject string, attr
 					System:   getSystem(attrs),
 					Address:  getAddress(attrs),
 				},
-			}:
-			case <-time.After(3 * time.Second):
-				log.Debug("Timeout while waiting to write to output channel")
+			})
+			if err != nil {
+				log.Debug("Cannot forward a message", "error", err)
 				continue
 			}
 
@@ -292,6 +287,13 @@ type HostAttributes struct {
 	System   func() string
 	Address  func() string
 }
+
+type Status int
+
+const (
+	StatusDisconnected Status = iota
+	StatusConnected
+)
 
 func getUsername(attrs HostAttributes) string {
 	if attrs.Username != nil {
