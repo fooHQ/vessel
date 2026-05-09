@@ -5,8 +5,10 @@ import (
 	"time"
 
 	proto "github.com/foohq/foojank-proto/go"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
+	"github.com/foohq/vessel/internal/vessel"
 	"github.com/foohq/vessel/internal/vessel/message"
 )
 
@@ -45,4 +47,13 @@ func (p *Publisher) Publish(ctx context.Context, msg message.Msg) error {
 	}
 
 	return nil
+}
+
+func (p *Publisher) Status() vessel.Status {
+	switch p.args.Connection.Conn().Status() {
+	case nats.CONNECTED:
+		return vessel.StatusConnected
+	default:
+		return vessel.StatusDisconnected
+	}
 }
