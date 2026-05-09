@@ -269,10 +269,10 @@ func monitor(ctx context.Context, conn jetstream.JetStream, subject string, attr
 			case outputCh <- monitorMessage{
 				subject: subject,
 				data: proto.UpdateClientInfo{
-					Username: attrs.Username(),
-					Hostname: attrs.Hostname(),
-					System:   attrs.System(),
-					Address:  attrs.Address(),
+					Username: getUsername(attrs),
+					Hostname: getHostname(attrs),
+					System:   getSystem(attrs),
+					Address:  getAddress(attrs),
 				},
 			}:
 			case <-time.After(3 * time.Second):
@@ -291,6 +291,34 @@ type HostAttributes struct {
 	Hostname func() string
 	System   func() string
 	Address  func() string
+}
+
+func getUsername(attrs HostAttributes) string {
+	if attrs.Username != nil {
+		return attrs.Username()
+	}
+	return ""
+}
+
+func getHostname(attrs HostAttributes) string {
+	if attrs.Hostname != nil {
+		return attrs.Hostname()
+	}
+	return ""
+}
+
+func getSystem(attrs HostAttributes) string {
+	if attrs.System != nil {
+		return attrs.System()
+	}
+	return ""
+}
+
+func getAddress(attrs HostAttributes) string {
+	if attrs.Address != nil {
+		return attrs.Address()
+	}
+	return ""
 }
 
 func forwardMessage(outputCh chan<- message.Msg, msg message.Msg) error {
