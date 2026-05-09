@@ -1,4 +1,4 @@
-package vessel_test
+package internal_test
 
 import (
 	"testing"

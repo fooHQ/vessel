@@ -1,4 +1,4 @@
-package vessel
+package internal
 
 import (
 	"context"
@@ -11,8 +11,8 @@ import (
 
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
-	"github.com/foohq/vessel/internal/vessel/message"
-	"github.com/foohq/vessel/internal/vessel/workmanager"
+	"github.com/foohq/vessel/internal/message"
+	"github.com/foohq/vessel/internal/workmanager"
 )
 
 type Arguments struct {

@@ -12,6 +12,7 @@ import (
 
 	natsfs "github.com/foohq/ren-natsfs"
 
+	vessel "github.com/foohq/vessel/internal"
 	execcmd "github.com/foohq/vessel/internal/commands/exec"
 
 	"github.com/foohq/ren"
@@ -23,7 +24,6 @@ import (
 	"github.com/foohq/vessel/internal/dialer"
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/publisher"
-	"github.com/foohq/vessel/internal/vessel"
 )
 
 var (

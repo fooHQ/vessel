@@ -8,7 +8,7 @@ import (
 
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
-	"github.com/foohq/vessel/internal/vessel/message"
+	"github.com/foohq/vessel/internal/message"
 )
 
 type Arguments struct {
