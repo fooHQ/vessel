@@ -7,24 +7,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/foohq/ren"
-	memfs "github.com/foohq/ren-memfs"
-	natsfs "github.com/foohq/ren-natsfs"
-	"github.com/nats-io/nats.go/jetstream"
-
 	"github.com/foohq/foojank-proto/go"
 
+	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/vessel/message"
 	"github.com/foohq/vessel/internal/vessel/workmanager"
 )
 
 type Arguments struct {
-	ID          string
-	Consumer    Consumer
-	Publisher   Publisher
-	HostAttrs   HostAttributes
-	ObjectStore jetstream.ObjectStore
+	ID        string
+	Consumer  Consumer
+	Publisher Publisher
+	HostAttrs HostAttributes
+	Commands  commands.Commands
 }
 
 type Service struct {
@@ -40,26 +36,6 @@ func New(args Arguments) *Service {
 func (s *Service) Start(ctx context.Context) error {
 	log.Debug("Service started", "service", "vessel", "id", s.args.ID)
 	defer log.Debug("Service stopped", "service", "vessel", "id", s.args.ID)
-
-	memFS, err := memfs.NewFS()
-	if err != nil {
-		log.Debug("Cannot instantiate mem fs", "error", err)
-		return err
-	}
-
-	natsFS, err := natsfs.NewFS(ctx, s.args.ObjectStore)
-	if err != nil {
-		log.Debug("Cannot instantiate nats fs", "error", err)
-		return err
-	}
-	defer func() {
-		_ = natsFS.Close()
-	}()
-
-	filesystems := map[string]ren.FS{
-		"mem":  memFS,
-		"nats": natsFS,
-	}
 
 	consumerOutCh := make(chan message.Msg)
 	publisherInCh := make(chan message.Msg, 128)
@@ -83,10 +59,10 @@ func (s *Service) Start(ctx context.Context) error {
 
 	wg.Go(func() {
 		err := workmanager.New(workmanager.Arguments{
-			ID:          s.args.ID,
-			Filesystems: filesystems,
-			InputCh:     consumerOutCh,
-			OutputCh:    publisherInCh,
+			ID:       s.args.ID,
+			InputCh:  consumerOutCh,
+			OutputCh: publisherInCh,
+			Commands: s.args.Commands,
 		}).Start(workManagerCtx)
 		if err != nil {
 			log.Debug("WorkManager error", "error", err)

@@ -6,10 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/foohq/ren"
-
 	proto "github.com/foohq/foojank-proto/go"
 
+	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/vessel/message"
@@ -17,10 +16,10 @@ import (
 )
 
 type Arguments struct {
-	ID          string
-	Filesystems map[string]ren.FS
-	InputCh     <-chan message.Msg
-	OutputCh    chan<- message.Msg
+	ID       string
+	InputCh  <-chan message.Msg
+	OutputCh chan<- message.Msg
+	Commands commands.Commands
 }
 
 type Service struct {
@@ -279,13 +278,13 @@ func (s *Service) startWorker(id, command string, args, env []string) (state, er
 	wCtx, cancel := context.WithCancel(context.Background())
 	s.wg.Go(func() {
 		err := worker.New(worker.Arguments{
-			ID:          id,
-			Command:     command,
-			Args:        args,
-			Env:         env,
-			EventCh:     s.eventCh,
-			StdinCh:     stdinCh,
-			Filesystems: s.args.Filesystems,
+			ID:       id,
+			Command:  command,
+			Args:     args,
+			Env:      env,
+			EventCh:  s.eventCh,
+			StdinCh:  stdinCh,
+			Commands: s.args.Commands,
 		}).Start(wCtx)
 		if err != nil {
 			log.Debug("Worker stopped with an error", "error", err)
