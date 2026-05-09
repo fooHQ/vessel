@@ -9,8 +9,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/message"
+	"github.com/foohq/vessel/log"
 )
 
 type Arguments struct {

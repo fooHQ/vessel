@@ -14,6 +14,7 @@ import (
 
 	vessel "github.com/foohq/vessel/internal"
 	execcmd "github.com/foohq/vessel/internal/commands/exec"
+	"github.com/foohq/vessel/log"
 
 	"github.com/foohq/ren"
 	"github.com/nats-io/nats.go"
@@ -22,7 +23,6 @@ import (
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/dialer"
-	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/publisher"
 )
 
