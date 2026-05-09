@@ -7,6 +7,7 @@ import (
 	proto "github.com/foohq/foojank-proto/go"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/nats-io/nuid"
 
 	"github.com/foohq/vessel/internal"
 	"github.com/foohq/vessel/internal/message"
@@ -36,10 +37,17 @@ func (p *Publisher) Publish(ctx context.Context, msg message.Msg) error {
 		jetstream.WithRetryAttempts(3),
 		jetstream.WithRetryWait(250 * time.Millisecond),
 	}
-	_, err = p.args.Connection.Publish(
+	_, err = p.args.Connection.PublishMsg(
 		ctx,
-		msg.Subject(),
-		data,
+		&nats.Msg{
+			Subject: msg.Subject(),
+			Header: map[string][]string{
+				jetstream.MsgIDHeader: {
+					nuid.Next(),
+				},
+			},
+			Data: data,
+		},
 		opts...,
 	)
 	if err != nil {
