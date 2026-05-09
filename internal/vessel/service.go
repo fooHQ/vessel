@@ -27,6 +27,7 @@ type Arguments struct {
 	ID          string
 	Connection  jetstream.JetStream
 	Consumer    Consumer
+	Publisher   Publisher
 	ObjectStore jetstream.ObjectStore
 }
 
@@ -65,7 +66,7 @@ func (s *Service) Start(ctx context.Context) error {
 	}
 
 	consumerOutCh := make(chan message.Msg)
-	publisherInCh := make(chan message.Msg)
+	publisherInCh := make(chan message.Msg, 128)
 	termCh := make(chan struct{})
 
 	var wg sync.WaitGroup
@@ -112,7 +113,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer publisherCancel()
 
 	wg.Go(func() {
-		err := publisher(publisherCtx, s.args.Connection, publisherInCh)
+		err := publisher(publisherCtx, s.args.Publisher, publisherInCh)
 		if err != nil {
 			log.Debug("Publisher error", "error", err)
 		}
@@ -171,31 +172,22 @@ func consumer(ctx context.Context, consumer Consumer, outputCh chan message.Msg)
 
 // TODO: messages should be aggregated so that CreateWorkerRequest can be canceled by StopWorkerRequest.
 
-func publisher(ctx context.Context, publisher jetstream.Publisher, inputCh <-chan message.Msg) error {
+type Publisher interface {
+	Publish(context.Context, message.Msg) error
+}
+
+func publisher(ctx context.Context, publisher Publisher, inputCh <-chan message.Msg) error {
 	log.Debug("Service started", "service", "vessel.publisher")
 	defer log.Debug("Service stopped", "service", "vessel.publisher")
 
-	opts := []jetstream.PublishOpt{
-		jetstream.WithRetryAttempts(3),
-		jetstream.WithRetryWait(250 * time.Millisecond),
-	}
+	var exit bool
+	var cancel context.CancelFunc
 
 loop:
 	for {
 		select {
 		case msg := <-inputCh:
-			data, err := proto.Marshal(msg.Data())
-			if err != nil {
-				log.Debug("Cannot encode a message", "error", err)
-				_ = msg.Ack()
-				continue
-			}
-
-			_, err = publisher.PublishAsync(
-				msg.Subject(),
-				data,
-				opts...,
-			)
+			err := publisher.Publish(ctx, msg)
 			if err != nil {
 				log.Debug("Cannot publish a message", "subject", msg.Subject(), "error", err)
 				continue
@@ -204,14 +196,19 @@ loop:
 			_ = msg.Ack()
 
 		case <-ctx.Done():
+			if !exit {
+				ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+				exit = true
+				continue loop
+			}
 			break loop
 		}
 	}
 
-	select {
-	case <-publisher.PublishAsyncComplete():
-	case <-time.After(5 * time.Second):
-		log.Debug("Some messages were not published", "lost", publisher.PublishAsyncPending(), "error", "timeout while waiting for publish to complete")
+	cancel()
+
+	if len(inputCh) != 0 {
+		log.Debug("Some messages were lost", "count", len(inputCh))
 	}
 
 	return nil
