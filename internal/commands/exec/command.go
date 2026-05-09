@@ -12,24 +12,21 @@ import (
 
 	proto "github.com/foohq/foojank-proto/go"
 
+	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
 )
 
 type Command struct {
-	stdin       ren.File
-	stdout      ren.File
 	filesystems map[string]ren.FS
 }
 
-func New(stdin, stdout ren.File, filesystems map[string]ren.FS) *Command {
+func New(filesystems map[string]ren.FS) *Command {
 	return &Command{
-		stdin:       stdin,
-		stdout:      stdout,
 		filesystems: filesystems,
 	}
 }
 
-func (c *Command) Run(ctx context.Context, args, env []string) (int64, error) {
+func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout commands.File) (int64, error) {
 	if len(args) == 0 {
 		return proto.ExitFailure, errors.New("missing package path")
 	}
@@ -47,8 +44,8 @@ func (c *Command) Run(ctx context.Context, args, env []string) (int64, error) {
 
 	opts := []ren.Option{
 		ren.WithArgs(args),
-		ren.WithStdin(c.stdin),
-		ren.WithStdout(c.stdout),
+		ren.WithStdin(stdin),
+		ren.WithStdout(stdout),
 	}
 
 	for scheme, fs := range c.filesystems {
