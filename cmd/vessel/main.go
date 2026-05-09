@@ -14,6 +14,7 @@ import (
 	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/dialer"
 	"github.com/foohq/vessel/internal/log"
+	"github.com/foohq/vessel/internal/publisher"
 	"github.com/foohq/vessel/internal/vessel"
 )
 
@@ -64,6 +65,9 @@ func main() {
 			Connection: conn,
 			Stream:     Stream,
 			Consumer:   Consumer,
+		}),
+		Publisher: publisher.New(publisher.Arguments{
+			Connection: conn,
 		}),
 		ObjectStore: store,
 	}).Start(ctx)
