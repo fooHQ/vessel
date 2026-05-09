@@ -11,7 +11,6 @@ import (
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/message"
-	"github.com/foohq/vessel/internal/router"
 	"github.com/foohq/vessel/internal/worker"
 )
 
@@ -41,13 +40,13 @@ func (s *Service) Start(ctx context.Context) error {
 	log.Debug("Service started", "service", "vessel.workmanager")
 	defer log.Debug("Service stopped", "service", "vessel.workmanager")
 
-	cmd := router.Handlers{
+	cmd := Handlers{
 		proto.CmdStartWorkerSubject("<agent>", "<worker>"): s.handleStartWorker,
 		proto.CmdStopWorkerSubject("<agent>", "<worker>"):  s.handleStopWorker,
 		proto.CmdWriteStdinSubject("<agent>", "<worker>"):  s.handleWriteWorkerStdin,
 	}
 	// Worker event handlers. The keys are not mapped to NATS subjects!
-	events := router.Handlers{
+	events := Handlers{
 		"_WORKER.EVENTS.STOPPED": s.handleWorkerStatusStopped,
 		"_WORKER.EVENTS.STDOUT":  s.handleWorkerStatusStdout,
 	}
@@ -126,7 +125,7 @@ loop:
 	return nil
 }
 
-func (s *Service) handleStartWorker(ctx context.Context, params router.Params, m any) any {
+func (s *Service) handleStartWorker(ctx context.Context, params Params, m any) any {
 	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
@@ -173,7 +172,7 @@ func (s *Service) handleStartWorker(ctx context.Context, params router.Params, m
 	}
 }
 
-func (s *Service) handleStopWorker(ctx context.Context, params router.Params, m any) any {
+func (s *Service) handleStopWorker(ctx context.Context, params Params, m any) any {
 	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
@@ -206,7 +205,7 @@ func (s *Service) handleStopWorker(ctx context.Context, params router.Params, m 
 	}
 }
 
-func (s *Service) handleWriteWorkerStdin(ctx context.Context, params router.Params, m any) any {
+func (s *Service) handleWriteWorkerStdin(ctx context.Context, params Params, m any) any {
 	msg := m.(message.Msg)
 	workerID, ok := params["worker"]
 	if !ok {
@@ -229,7 +228,7 @@ func (s *Service) handleWriteWorkerStdin(ctx context.Context, params router.Para
 	return nil
 }
 
-func (s *Service) handleWorkerStatusStopped(_ context.Context, params router.Params, data any) any {
+func (s *Service) handleWorkerStatusStopped(_ context.Context, params Params, data any) any {
 	v, ok := data.(worker.EventWorkerStopped)
 	if !ok {
 		log.Debug("Invalid event data")
@@ -248,7 +247,7 @@ func (s *Service) handleWorkerStatusStopped(_ context.Context, params router.Par
 	}
 }
 
-func (s *Service) handleWorkerStatusStdout(_ context.Context, _ router.Params, data any) any {
+func (s *Service) handleWorkerStatusStdout(_ context.Context, _ Params, data any) any {
 	v, ok := data.(worker.EventWorkerOutput)
 	if !ok {
 		log.Debug("Invalid event data")
