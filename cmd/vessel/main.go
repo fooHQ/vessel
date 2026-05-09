@@ -10,9 +10,15 @@ import (
 	"runtime"
 	"time"
 
+	natsfs "github.com/foohq/ren-natsfs"
+
+	execcmd "github.com/foohq/vessel/internal/commands/exec"
+
+	"github.com/foohq/ren"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
+	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/dialer"
 	"github.com/foohq/vessel/internal/log"
@@ -60,6 +66,20 @@ func main() {
 		return
 	}
 
+	natsFS, err := natsfs.NewFS(ctx, store)
+	if err != nil {
+		log.Debug("Cannot instantiate nats fs", "error", err)
+		return
+	}
+	defer func() {
+		_ = natsFS.Close()
+	}()
+
+	cmds := commands.New()
+	cmds["exec"] = execcmd.New(map[string]ren.FS{
+		"nats": natsFS,
+	})
+
 	err = vessel.New(vessel.Arguments{
 		ID: AgentID,
 		Consumer: consumer.New(consumer.Arguments{
@@ -70,13 +90,13 @@ func main() {
 		Publisher: publisher.New(publisher.Arguments{
 			Connection: conn,
 		}),
-		ObjectStore: store,
 		HostAttrs: vessel.HostAttributes{
 			Username: getUsername,
 			Hostname: getHostname,
 			System:   getSystem,
 			Address:  getAddress(conn.Conn()),
 		},
+		Commands: cmds,
 	}).Start(ctx)
 	if err != nil {
 		log.Debug("Cannot start the agent", "error", err)
