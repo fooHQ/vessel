@@ -11,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
+	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/dialer"
 	"github.com/foohq/vessel/internal/log"
 	"github.com/foohq/vessel/internal/vessel"
@@ -50,12 +51,6 @@ func main() {
 	}
 	defer conn.Conn().Close()
 
-	consumer, err := getConsumer(ctx, conn, Stream, Consumer)
-	if err != nil {
-		log.Debug("Cannot obtain durable consumer", "error", err)
-		return
-	}
-
 	store, err := getObjectStore(ctx, conn, ObjectStore)
 	if err != nil {
 		log.Debug("Cannot obtain object store", "error", err)
@@ -63,9 +58,13 @@ func main() {
 	}
 
 	err = vessel.New(vessel.Arguments{
-		ID:          AgentID,
-		Connection:  conn,
-		Consumer:    consumer,
+		ID:         AgentID,
+		Connection: conn,
+		Consumer: consumer.New(consumer.Arguments{
+			Connection: conn,
+			Stream:     Stream,
+			Consumer:   Consumer,
+		}),
 		ObjectStore: store,
 	}).Start(ctx)
 	if err != nil {
@@ -148,14 +147,6 @@ func decodeCertificateHandler(s string) func() (*x509.CertPool, error) {
 
 func getObjectStore(ctx context.Context, conn jetstream.JetStream, store string) (jetstream.ObjectStore, error) {
 	return conn.ObjectStore(ctx, store)
-}
-
-func getConsumer(ctx context.Context, conn jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
-	c, err := conn.Consumer(ctx, stream, consumer)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
 }
 
 func mustGetReconnectInterval() time.Duration {
