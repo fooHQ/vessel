@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/nats-io/nuid"
 
-	"github.com/foohq/vessel/internal"
+	vessel "github.com/foohq/vessel/internal"
 	"github.com/foohq/vessel/internal/message"
 )
 
@@ -57,11 +57,11 @@ func (p *Publisher) Publish(ctx context.Context, msg message.Msg) error {
 	return nil
 }
 
-func (p *Publisher) Status() internal.Status {
+func (p *Publisher) Status() vessel.Status {
 	switch p.args.Connection.Conn().Status() {
 	case nats.CONNECTED:
-		return internal.StatusConnected
+		return vessel.StatusConnected
 	default:
-		return internal.StatusDisconnected
+		return vessel.StatusDisconnected
 	}
 }
