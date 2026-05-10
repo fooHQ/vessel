@@ -50,6 +50,7 @@ def build():
 
     cmd = [
         "go", "build",
+        "-trimpath",
         "-tags", features,
         "-o", target,
         "-ldflags", ldflags,
