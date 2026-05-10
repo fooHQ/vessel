@@ -16,7 +16,7 @@ Import profiles.json:
 $ foojank profile import ./vessel/profiles.json
 ```
 
-## Building
+## Build
 
 ```shell
 $ foojank agent build --profile vessel-windows-amd64
