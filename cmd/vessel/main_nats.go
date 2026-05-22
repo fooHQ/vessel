@@ -1,3 +1,5 @@
+//go:build transport_nats || !transport_azqueue
+
 package main
 
 import (
