@@ -3,17 +3,21 @@ module github.com/foohq/vessel
 go 1.26
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azqueue/v2 v2.0.1
 	github.com/foohq/foojank-proto/go v0.0.0-20260425124254-6ae9d7914485
 	github.com/foohq/ren v0.2.0-rc2
 	github.com/foohq/ren-natsfs v0.0.0-20260414063815-487081cc8ffc
 	github.com/lmittmann/tint v1.1.3
 	github.com/nats-io/nats-server/v2 v2.12.6
 	github.com/nats-io/nats.go v1.50.0
+	github.com/nats-io/nuid v1.0.1
 	github.com/stretchr/testify v1.11.1
 )
 
 require (
 	capnproto.org/go/capnp/v3 v3.1.0-alpha.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
 	github.com/antithesishq/antithesis-sdk-go v0.7.0 // indirect
 	github.com/colega/zeropool v0.0.0-20230505084239-6fb4a4f75381 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -26,12 +30,13 @@ require (
 	github.com/minio/highwayhash v1.0.4 // indirect
 	github.com/nats-io/jwt/v2 v2.8.1 // indirect
 	github.com/nats-io/nkeys v0.4.15 // indirect
-	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/u-root/u-root v0.16.0 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
