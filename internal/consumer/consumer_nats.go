@@ -1,3 +1,5 @@
+//go:build transport_nats || !transport_azqueue
+
 package consumer
 
 import (
@@ -10,7 +12,6 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 
 	"github.com/foohq/vessel/internal/message"
-	"github.com/foohq/vessel/log"
 )
 
 type Arguments struct {
@@ -50,9 +51,11 @@ func (s *Consumer) Messages(ctx context.Context) iter.Seq2[message.Msg, error] {
 
 			data, err := proto.Unmarshal(msg.Data())
 			if err != nil {
-				log.Debug("Cannot decode a message", "error", err)
-				_ = msg.Ack()
-				// Invalid messages are not propagated to a caller (do not call yield!).
+				err := msg.Ack()
+				if err != nil {
+					yield(nil, err)
+					return
+				}
 				continue
 			}
 
