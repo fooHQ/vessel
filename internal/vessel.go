@@ -39,7 +39,8 @@ func (s *Service) Start(ctx context.Context) error {
 
 	consumerOutCh := make(chan message.Msg)
 	publisherInCh := make(chan message.Msg, 128)
-	termCh := make(chan struct{})
+	// Set capacity to the total number of goroutines tracked by the WaitGroup.
+	termCh := make(chan struct{}, 4)
 
 	var wg sync.WaitGroup
 
