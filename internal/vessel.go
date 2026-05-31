@@ -148,7 +148,6 @@ func consumer(ctx context.Context, consumer Consumer, outputCh chan message.Msg)
 
 type Publisher interface {
 	Publish(context.Context, message.Msg) error
-	Status() Status
 }
 
 func publisher(ctx context.Context, publisher Publisher, inputCh <-chan message.Msg) error {
