@@ -47,8 +47,8 @@ func (s *Service) Start(ctx context.Context) error {
 	}
 	// Worker event handlers. The keys are not mapped to NATS subjects!
 	events := Handlers{
-		"_WORKER.EVENTS.STOPPED": s.handleWorkerStatusStopped,
-		"_WORKER.EVENTS.STDOUT":  s.handleWorkerStatusStdout,
+		worker.EventStopped: s.handleWorkerStatusStopped,
+		worker.EventOutput:  s.handleWorkerStatusStdout,
 	}
 
 loop:
