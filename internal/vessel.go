@@ -20,7 +20,7 @@ type Arguments struct {
 	Consumer    Consumer
 	Publisher   Publisher
 	ConnChecker ConnChecker
-	HostAttrs   HostAttributes
+	HostInfo    HostInfo
 	Commands    commands.Commands
 }
 
@@ -76,7 +76,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer beaconCancel()
 
 	wg.Go(func() {
-		err := beacon(beaconCtx, s.args.ConnChecker, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
+		err := beacon(beaconCtx, s.args.ConnChecker, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostInfo, publisherInCh)
 		if err != nil {
 			log.Debug("Beacon error", "error", err)
 		}
@@ -215,7 +215,7 @@ type ConnChecker interface {
 	Status() Status
 }
 
-func beacon(ctx context.Context, checker ConnChecker, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
+func beacon(ctx context.Context, checker ConnChecker, subject string, info HostInfo, outputCh chan<- message.Msg) error {
 	log.Debug("Service started", "service", "vessel.beacon")
 	defer log.Debug("Service stopped", "service", "vessel.beacon")
 
@@ -241,10 +241,10 @@ func beacon(ctx context.Context, checker ConnChecker, subject string, attrs Host
 			err := forwardMessage(outputCh, beaconMessage{
 				subject: subject,
 				data: proto.UpdateClientInfo{
-					Username: getUsername(attrs),
-					Hostname: getHostname(attrs),
-					System:   getSystem(attrs),
-					Address:  getAddress(attrs),
+					Username: info.Username(),
+					Hostname: info.Hostname(),
+					System:   info.System(),
+					Address:  info.Address(),
 				},
 			})
 			if err != nil {
@@ -258,11 +258,11 @@ func beacon(ctx context.Context, checker ConnChecker, subject string, attrs Host
 	}
 }
 
-type HostAttributes struct {
-	Username func() string
-	Hostname func() string
-	System   func() string
-	Address  func() string
+type HostInfo interface {
+	Username() string
+	Hostname() string
+	System() string
+	Address() string
 }
 
 type Status int
@@ -271,34 +271,6 @@ const (
 	StatusDisconnected Status = iota
 	StatusConnected
 )
-
-func getUsername(attrs HostAttributes) string {
-	if attrs.Username != nil {
-		return attrs.Username()
-	}
-	return ""
-}
-
-func getHostname(attrs HostAttributes) string {
-	if attrs.Hostname != nil {
-		return attrs.Hostname()
-	}
-	return ""
-}
-
-func getSystem(attrs HostAttributes) string {
-	if attrs.System != nil {
-		return attrs.System()
-	}
-	return ""
-}
-
-func getAddress(attrs HostAttributes) string {
-	if attrs.Address != nil {
-		return attrs.Address()
-	}
-	return ""
-}
 
 func forwardMessage(outputCh chan<- message.Msg, msg message.Msg) error {
 	select {
