@@ -35,14 +35,6 @@ func (s *Service) Start(ctx context.Context) error {
 	log.Debug("Service started", "service", "vessel.workmanager.worker", "id", s.args.ID)
 	defer log.Debug("Service stopped", "service", "vessel.workmanager.worker", "id", s.args.ID)
 
-	err := forwardMessage(s.args.EventCh, EventWorkerStarted{
-		WorkerID: s.args.ID,
-	})
-	if err != nil {
-		log.Debug("Cannot forward a message", "error", err)
-		return err
-	}
-
 	// Capacity must be greater than the total number of goroutines tracked by the WaitGroup.
 	termCh := make(chan struct{}, 8)
 

@@ -4,26 +4,6 @@ import (
 	"github.com/foohq/vessel/internal/message"
 )
 
-type EventWorkerStarted struct {
-	WorkerID string
-}
-
-func (e EventWorkerStarted) ID() string {
-	return ""
-}
-
-func (e EventWorkerStarted) Subject() string {
-	return "_WORKER.EVENTS.STARTED"
-}
-
-func (e EventWorkerStarted) Data() any {
-	return e
-}
-
-func (e EventWorkerStarted) Ack() error {
-	return message.ErrUnsupported
-}
-
 type EventWorkerOutput struct {
 	WorkerID   string
 	OutputData []byte
