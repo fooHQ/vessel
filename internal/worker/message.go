@@ -4,6 +4,11 @@ import (
 	"github.com/foohq/vessel/internal/message"
 )
 
+const (
+	EventOutput  = "WORKER.EVENTS.OUTPUT"
+	EventStopped = "WORKER.EVENTS.STOPPED"
+)
+
 type EventWorkerOutput struct {
 	WorkerID   string
 	OutputData []byte
@@ -14,7 +19,7 @@ func (e EventWorkerOutput) ID() string {
 }
 
 func (e EventWorkerOutput) Subject() string {
-	return "_WORKER.EVENTS.STDOUT"
+	return EventOutput
 }
 
 func (e EventWorkerOutput) Data() any {
@@ -36,7 +41,7 @@ func (e EventWorkerStopped) ID() string {
 }
 
 func (e EventWorkerStopped) Subject() string {
-	return "_WORKER.EVENTS.STOPPED"
+	return EventStopped
 }
 
 func (e EventWorkerStopped) Data() any {
