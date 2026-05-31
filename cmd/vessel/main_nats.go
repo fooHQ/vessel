@@ -99,12 +99,9 @@ func main() {
 		ConnChecker: NewConnChecker(ConnCheckerConfig{
 			Connection: conn,
 		}),
-		HostAttrs: vessel.HostAttributes{
-			Username: getUsername,
-			Hostname: getHostname,
-			System:   getSystem,
-			Address:  getAddress(conn.Conn()),
-		},
+		HostInfo: NewHostInfo(HostInfoConfig{
+			Connection: conn,
+		}),
 		Commands: cmds,
 	}).Start(ctx)
 	if err != nil {
@@ -254,6 +251,48 @@ func (c *ConnChecker) Status() vessel.Status {
 	}
 }
 
+type HostInfoConfig struct {
+	Connection jetstream.JetStream
+}
+
+type HostInfo struct {
+	conf HostInfoConfig
+}
+
+func NewHostInfo(conf HostInfoConfig) *HostInfo {
+	return &HostInfo{
+		conf: conf,
+	}
+}
+
+func (h *HostInfo) Username() string {
+	usr, err := user.Current()
+	if err != nil {
+		return ""
+	}
+	return usr.Username
+}
+
+func (h *HostInfo) Hostname() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return ""
+	}
+	return hostname
+}
+
+func (h *HostInfo) System() string {
+	return runtime.GOOS
+}
+
+func (h *HostInfo) Address() string {
+	ip, err := h.conf.Connection.Conn().GetClientIP()
+	if err != nil {
+		return ""
+	}
+	return ip.String()
+}
+
 type Dialer struct {
 	connMux  sync.Mutex
 	cancel   context.CancelFunc
@@ -395,36 +434,6 @@ func mustGetAwaitMessagesDuration() time.Duration {
 		panic(err)
 	}
 	return d
-}
-
-func getUsername() string {
-	usr, err := user.Current()
-	if err != nil {
-		return ""
-	}
-	return usr.Username
-}
-
-func getHostname() string {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return ""
-	}
-	return hostname
-}
-
-func getSystem() string {
-	return runtime.GOOS
-}
-
-func getAddress(nc *nats.Conn) func() string {
-	return func() string {
-		ip, err := nc.GetClientIP()
-		if err != nil {
-			return ""
-		}
-		return ip.String()
-	}
 }
 
 func connected(_ *nats.Conn) {
