@@ -34,10 +34,10 @@ var (
 	ServerCertificate     = ""
 	UserJWT               = ""
 	UserKey               = ""
-	Stream                = ""
-	Consumer              = ""
+	StreamName            = ""
+	ConsumerName          = ""
 	InboxPrefix           = ""
-	ObjectStore           = ""
+	ObjectStoreName       = ""
 	AwaitMessagesDuration = "" // time.Duration
 	IdleDuration          = "" // time.Duration
 	IdleJitter            = "" // time.Duration
@@ -62,7 +62,7 @@ func main() {
 	}
 	defer conn.Conn().Close()
 
-	store, err := getObjectStore(ctx, conn, ObjectStore)
+	store, err := getObjectStore(ctx, conn, ObjectStoreName)
 	if err != nil {
 		log.Debug("Cannot obtain object store", "error", err)
 		return
@@ -86,8 +86,8 @@ func main() {
 		ID: AgentID,
 		Consumer: consumer.New(consumer.Arguments{
 			Connection: conn,
-			Stream:     Stream,
-			Consumer:   Consumer,
+			Stream:     StreamName,
+			Consumer:   ConsumerName,
 		}),
 		Publisher: publisher.New(publisher.Arguments{
 			Connection: conn,
