@@ -92,6 +92,9 @@ func main() {
 		Publisher: publisher.New(publisher.Arguments{
 			Connection: conn,
 		}),
+		ConnChecker: NewConnChecker(ConnCheckerConfig{
+			Connection: conn,
+		}),
 		HostAttrs: vessel.HostAttributes{
 			Username: getUsername,
 			Hostname: getHostname,
@@ -103,6 +106,29 @@ func main() {
 	if err != nil {
 		log.Debug("Cannot start the agent", "error", err)
 		return
+	}
+}
+
+type ConnCheckerConfig struct {
+	Connection jetstream.JetStream
+}
+
+type ConnChecker struct {
+	conn jetstream.JetStream
+}
+
+func NewConnChecker(conf ConnCheckerConfig) *ConnChecker {
+	return &ConnChecker{
+		conn: conf.Connection,
+	}
+}
+
+func (c *ConnChecker) Status() vessel.Status {
+	switch c.conn.Conn().Status() {
+	case nats.CONNECTED:
+		return vessel.StatusConnected
+	default:
+		return vessel.StatusDisconnected
 	}
 }
 
