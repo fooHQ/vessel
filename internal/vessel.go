@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/foohq/foojank-proto/go"
+	proto "github.com/foohq/foojank-proto/go"
 
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/message"
