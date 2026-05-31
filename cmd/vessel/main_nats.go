@@ -16,6 +16,7 @@ import (
 
 	proto "github.com/foohq/foojank-proto/go"
 	natsfs "github.com/foohq/ren-natsfs"
+	"github.com/nats-io/nuid"
 
 	vessel "github.com/foohq/vessel/internal"
 	execcmd "github.com/foohq/vessel/internal/commands/exec"
@@ -28,7 +29,6 @@ import (
 
 	"github.com/foohq/vessel/internal/commands"
 	"github.com/foohq/vessel/internal/dialer"
-	"github.com/foohq/vessel/internal/publisher"
 )
 
 var (
@@ -92,7 +92,7 @@ func main() {
 			Stream:     StreamName,
 			Consumer:   ConsumerName,
 		}),
-		Publisher: publisher.New(publisher.Arguments{
+		Publisher: NewPublisher(PublisherConfig{
 			Connection: conn,
 		}),
 		ConnChecker: NewConnChecker(ConnCheckerConfig{
@@ -184,6 +184,50 @@ func (m ConsumerMessage) Data() any {
 
 func (m ConsumerMessage) Ack() error {
 	return m.msg.Ack()
+}
+
+type PublisherConfig struct {
+	Connection jetstream.JetStream
+}
+
+type Publisher struct {
+	conf PublisherConfig
+}
+
+func NewPublisher(args PublisherConfig) *Publisher {
+	return &Publisher{
+		conf: args,
+	}
+}
+
+func (p *Publisher) Publish(ctx context.Context, msg message.Msg) error {
+	data, err := proto.Marshal(msg.Data())
+	if err != nil {
+		return err
+	}
+
+	opts := []jetstream.PublishOpt{
+		jetstream.WithRetryAttempts(3),
+		jetstream.WithRetryWait(250 * time.Millisecond),
+	}
+	_, err = p.conf.Connection.PublishMsg(
+		ctx,
+		&nats.Msg{
+			Subject: msg.Subject(),
+			Header: map[string][]string{
+				jetstream.MsgIDHeader: {
+					nuid.Next(),
+				},
+			},
+			Data: data,
+		},
+		opts...,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type ConnCheckerConfig struct {
