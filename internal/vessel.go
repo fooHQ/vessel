@@ -16,11 +16,12 @@ import (
 )
 
 type Arguments struct {
-	ID        string
-	Consumer  Consumer
-	Publisher Publisher
-	HostAttrs HostAttributes
-	Commands  commands.Commands
+	ID          string
+	Consumer    Consumer
+	Publisher   Publisher
+	ConnChecker ConnChecker
+	HostAttrs   HostAttributes
+	Commands    commands.Commands
 }
 
 type Service struct {
@@ -75,7 +76,7 @@ func (s *Service) Start(ctx context.Context) error {
 	defer beaconCancel()
 
 	wg.Go(func() {
-		err := beacon(beaconCtx, s.args.Publisher, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
+		err := beacon(beaconCtx, s.args.ConnChecker, proto.EvtAgentInfoSubject(s.args.ID), s.args.HostAttrs, publisherInCh)
 		if err != nil {
 			log.Debug("Beacon error", "error", err)
 		}
@@ -211,22 +212,22 @@ func (m beaconMessage) Data() any {
 	return m.data
 }
 
-type Connector interface {
-	Status
+type ConnChecker interface {
+	Status() Status
 }
 
-func beacon(ctx context.Context, publisher Publisher, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
+func beacon(ctx context.Context, checker ConnChecker, subject string, attrs HostAttributes, outputCh chan<- message.Msg) error {
 	log.Debug("Service started", "service", "vessel.beacon")
 	defer log.Debug("Service stopped", "service", "vessel.beacon")
 
-	lastStatus := publisher.Status()
+	lastStatus := checker.Status()
 	triggerCh := make(chan struct{}, 2)
 	triggerCh <- struct{}{}
 
 	for {
 		select {
 		case <-time.After(5 * time.Second):
-			status := publisher.Status()
+			status := checker.Status()
 			if status == lastStatus {
 				continue
 			}
@@ -234,7 +235,7 @@ func beacon(ctx context.Context, publisher Publisher, subject string, attrs Host
 			triggerCh <- struct{}{}
 
 		case <-triggerCh:
-			if publisher.Status() != StatusConnected {
+			if checker.Status() != StatusConnected {
 				continue
 			}
 
