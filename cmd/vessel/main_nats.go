@@ -20,8 +20,9 @@ import (
 	natsfs "github.com/foohq/ren-natsfs"
 	"github.com/nats-io/nuid"
 
+	execcmd "github.com/foohq/vessel/commands/exec"
+
 	vessel "github.com/foohq/vessel/internal"
-	execcmd "github.com/foohq/vessel/internal/commands/exec"
 	"github.com/foohq/vessel/internal/message"
 	"github.com/foohq/vessel/log"
 
@@ -29,7 +30,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/foohq/vessel/internal/commands"
+	"github.com/foohq/vessel/commands"
 )
 
 var (
@@ -81,10 +82,10 @@ func main() {
 		_ = natsFS.Close()
 	}()
 
-	cmds := commands.New()
-	cmds["exec"] = execcmd.New(map[string]ren.FS{
+	registry := commands.NewRegistry()
+	registry.Add("exec", execcmd.New(map[string]ren.FS{
 		"nats": natsFS,
-	})
+	}))
 
 	err = vessel.New(vessel.Arguments{
 		ID: AgentID,
@@ -102,7 +103,7 @@ func main() {
 		HostInfo: NewHostInfo(HostInfoConfig{
 			Connection: conn,
 		}),
-		Commands: cmds,
+		Commands: registry,
 	}).Start(ctx)
 	if err != nil {
 		log.Debug("Cannot start the agent", "error", err)

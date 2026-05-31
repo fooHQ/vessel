@@ -9,7 +9,7 @@ import (
 
 	proto "github.com/foohq/foojank-proto/go"
 
-	"github.com/foohq/vessel/internal/commands"
+	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/internal/message"
 	"github.com/foohq/vessel/internal/workmanager"
 	"github.com/foohq/vessel/log"
@@ -21,7 +21,7 @@ type Arguments struct {
 	Publisher   Publisher
 	ConnChecker ConnChecker
 	HostInfo    HostInfo
-	Commands    commands.Commands
+	Commands    command.Registry
 }
 
 type Service struct {

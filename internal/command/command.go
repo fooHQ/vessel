@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"context"
@@ -6,26 +6,15 @@ import (
 	"io"
 	"io/fs"
 	"time"
-
-	proto "github.com/foohq/foojank-proto/go"
 )
 
-type Commands map[string]Command
-
-func New() Commands {
-	return make(Commands)
+type Registry interface {
+	RunCommand(ctx context.Context, cmd string, args, env []string, stdin, stdout File) Status
 }
 
-func (c Commands) Run(ctx context.Context, cmd string, args, env []string, stdin, stdout File) (int64, error) {
-	cc, ok := c[cmd]
-	if !ok {
-		return proto.ExitCommandNotFound, errors.New("command not found")
-	}
-	return cc.Run(ctx, args, env, stdin, stdout)
-}
-
-type Command interface {
-	Run(ctx context.Context, args, env []string, stdin, stdout File) (int64, error)
+type Status interface {
+	Code() int64
+	Error() error
 }
 
 type File interface {

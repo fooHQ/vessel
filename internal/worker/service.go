@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/foohq/vessel/internal/commands"
+	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/internal/message"
 	"github.com/foohq/vessel/log"
 )
@@ -18,7 +18,7 @@ type Arguments struct {
 	Env      []string
 	EventCh  chan<- message.Msg
 	StdinCh  <-chan []byte
-	Commands commands.Commands
+	Commands command.Registry
 }
 
 type Service struct {
@@ -40,7 +40,7 @@ func (s *Service) Start(ctx context.Context) error {
 
 	var wg sync.WaitGroup
 
-	stdin := commands.NewPipe()
+	stdin := command.NewPipe()
 	stdinWriterCtx, stdinWriterCancel := context.WithCancel(ctx)
 	stdinWriterCancelWrapper := func() {
 		_ = stdin.Close()
@@ -56,7 +56,7 @@ func (s *Service) Start(ctx context.Context) error {
 		termCh <- struct{}{}
 	})
 
-	stdout := commands.NewPipe()
+	stdout := command.NewPipe()
 	stdoutReaderCtx, stdoutReaderCancel := context.WithCancel(ctx)
 	stdoutReaderCancelWrapper := func() {
 		_ = stdout.Close()
@@ -76,15 +76,11 @@ func (s *Service) Start(ctx context.Context) error {
 	defer runnerCancel()
 
 	wg.Go(func() {
-		code, err := s.args.Commands.Run(runnerCtx, s.args.Command, s.args.Args, s.args.Env, stdin, stdout)
-		if err != nil {
-			log.Debug("Runner failed", "error", err)
-		}
-
-		err = forwardMessage(s.args.EventCh, EventWorkerStopped{
+		status := s.args.Commands.RunCommand(runnerCtx, s.args.Command, s.args.Args, s.args.Env, stdin, stdout)
+		err := forwardMessage(s.args.EventCh, EventWorkerStopped{
 			WorkerID: s.args.ID,
-			Status:   code,
-			Error:    err,
+			Status:   status.Code(),
+			Error:    status.Error(),
 		})
 		if err != nil {
 			log.Debug("Cannot forward a message", "error", err)
@@ -115,7 +111,7 @@ func (s *Service) Start(ctx context.Context) error {
 	return nil
 }
 
-func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile commands.File) error {
+func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile command.File) error {
 	log.Debug("Service started", "service", "vessel.worker.stdinwriter")
 	defer log.Debug("Service stopped", "service", "vessel.worker.stdinwriter")
 
@@ -133,7 +129,7 @@ func stdinWriter(ctx context.Context, inputCh <-chan []byte, outputFile commands
 	}
 }
 
-func stdoutReader(ctx context.Context, workerID string, inputFile commands.File, outputCh chan<- message.Msg) error {
+func stdoutReader(ctx context.Context, workerID string, inputFile command.File, outputCh chan<- message.Msg) error {
 	log.Debug("Service started", "service", "vessel.worker.stdoutwriter")
 	defer log.Debug("Service stopped", "service", "vessel.worker.stdoutwriter")
 

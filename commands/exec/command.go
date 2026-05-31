@@ -12,7 +12,7 @@ import (
 
 	proto "github.com/foohq/foojank-proto/go"
 
-	"github.com/foohq/vessel/internal/commands"
+	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/log"
 )
 
@@ -26,7 +26,7 @@ func New(filesystems map[string]ren.FS) *Command {
 	}
 }
 
-func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout commands.File) (int64, error) {
+func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout command.File) (int64, error) {
 	if len(args) == 0 {
 		return proto.ExitFailure, errors.New("missing package path")
 	}
