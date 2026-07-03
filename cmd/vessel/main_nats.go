@@ -20,7 +20,7 @@ import (
 	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/publisher"
 
-	vessel "github.com/foohq/vessel/internal"
+	"github.com/foohq/vessel/internal/service"
 	"github.com/foohq/vessel/log"
 
 	"github.com/foohq/ren"
@@ -85,7 +85,7 @@ func main() {
 		"nats": natsFS,
 	}))
 
-	err = vessel.New(vessel.Arguments{
+	err = service.New(service.Arguments{
 		Consumer: consumer.NewStreamConsumer(consumer.StreamConsumerConfig{
 			Connection: conn,
 			Stream:     StreamName,
@@ -124,12 +124,12 @@ func NewConnChecker(conf ConnCheckerConfig) *ConnChecker {
 	}
 }
 
-func (c *ConnChecker) Status() vessel.Status {
+func (c *ConnChecker) Status() service.Status {
 	switch c.conn.Conn().Status() {
 	case nats.CONNECTED:
-		return vessel.StatusConnected
+		return service.StatusConnected
 	default:
-		return vessel.StatusDisconnected
+		return service.StatusDisconnected
 	}
 }
 

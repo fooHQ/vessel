@@ -15,9 +15,9 @@ import (
 
 	"github.com/foohq/vessel/commands"
 	execcmd "github.com/foohq/vessel/commands/exec"
-	vessel "github.com/foohq/vessel/internal"
 	"github.com/foohq/vessel/internal/consumer"
 	"github.com/foohq/vessel/internal/publisher"
+	"github.com/foohq/vessel/internal/service"
 	"github.com/foohq/vessel/log"
 )
 
@@ -49,7 +49,7 @@ func main() {
 	registry := commands.NewRegistry()
 	registry.Add("exec", execcmd.New(nil))
 
-	err = vessel.New(vessel.Arguments{
+	err = service.New(service.Arguments{
 		Consumer: consumer.NewQueueConsumer(consumer.QueueConsumerConfig{
 			Connection: conn,
 		}),
@@ -74,8 +74,8 @@ func NewConnChecker() *ConnChecker {
 	return &ConnChecker{}
 }
 
-func (c *ConnChecker) Status() vessel.Status {
-	return vessel.StatusConnected
+func (c *ConnChecker) Status() service.Status {
+	return service.StatusConnected
 }
 
 type HostInfo struct{}
