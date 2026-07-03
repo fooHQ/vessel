@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	proto "github.com/foohq/foojank-proto/go"
+	protoagent "github.com/foohq/foojank-proto/go/agent"
 
 	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/internal/message"
@@ -15,7 +15,6 @@ import (
 )
 
 type Arguments struct {
-	ID       string
 	InputCh  <-chan message.Msg
 	OutputCh chan<- message.Msg
 	Commands command.Registry
@@ -41,9 +40,9 @@ func (s *Service) Start(ctx context.Context) error {
 	defer log.Debug("Service stopped", "service", "vessel.workmanager")
 
 	cmd := Handlers{
-		proto.CmdStartWorkerSubject("<agent>", "<worker>"): s.handleStartWorker,
-		proto.CmdStopWorkerSubject("<agent>", "<worker>"):  s.handleStopWorker,
-		proto.CmdWriteStdinSubject("<agent>", "<worker>"):  s.handleWriteWorkerStdin,
+		protoagent.CmdStartWorkerSubject("<gateway>", "<agent>", "<worker>"): s.handleStartWorker,
+		protoagent.CmdStopWorkerSubject("<gateway>", "<agent>", "<worker>"):  s.handleStopWorker,
+		protoagent.CmdWriteStdinSubject("<gateway>", "<agent>", "<worker>"):  s.handleWriteWorkerStdin,
 	}
 	// Worker event handlers. The keys are not mapped to NATS subjects!
 	events := Handlers{
@@ -132,20 +131,20 @@ func (s *Service) handleStartWorker(ctx context.Context, params Params, m any) a
 		log.Debug("Missing worker ID")
 		return Message{
 			msg:     msg,
-			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
-			data: proto.StartWorkerResponse{
+			subject: protoagent.EvtStartWorkerSubject("%s", "%s", workerID),
+			data: protoagent.StartWorkerResponse{
 				Error: errors.New("missing worker id"),
 			},
 		}
 	}
 
-	v, ok := msg.Data().(proto.StartWorkerRequest)
+	v, ok := msg.Data().(protoagent.StartWorkerRequest)
 	if !ok {
 		log.Debug("Invalid request data")
 		return Message{
 			msg:     msg,
-			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
-			data: proto.StartWorkerResponse{
+			subject: protoagent.EvtStartWorkerSubject("%s", "%s", workerID),
+			data: protoagent.StartWorkerResponse{
 				Error: errors.New("invalid request data"),
 			},
 		}
@@ -156,8 +155,8 @@ func (s *Service) handleStartWorker(ctx context.Context, params Params, m any) a
 		log.Debug("Cannot start worker", "error", err)
 		return Message{
 			msg:     msg,
-			subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
-			data: proto.StartWorkerResponse{
+			subject: protoagent.EvtStartWorkerSubject("%s", "%s", workerID),
+			data: protoagent.StartWorkerResponse{
 				Error: err,
 			},
 		}
@@ -167,8 +166,8 @@ func (s *Service) handleStartWorker(ctx context.Context, params Params, m any) a
 
 	return Message{
 		msg:     msg,
-		subject: proto.EvtStartWorkerSubject(s.args.ID, workerID),
-		data:    proto.StartWorkerResponse{},
+		subject: protoagent.EvtStartWorkerSubject("%s", "%s", workerID),
+		data:    protoagent.StartWorkerResponse{},
 	}
 }
 
@@ -179,8 +178,8 @@ func (s *Service) handleStopWorker(ctx context.Context, params Params, m any) an
 		log.Debug("Missing worker ID")
 		return Message{
 			msg:     msg,
-			subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
-			data: proto.StopWorkerResponse{
+			subject: protoagent.EvtStopWorkerSubject("%s", "%s", workerID),
+			data: protoagent.StopWorkerResponse{
 				Error: errors.New("missing worker id"),
 			},
 		}
@@ -191,8 +190,8 @@ func (s *Service) handleStopWorker(ctx context.Context, params Params, m any) an
 		log.Debug("Cannot stop worker", "error", err)
 		return Message{
 			msg:     msg,
-			subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
-			data: proto.StopWorkerResponse{
+			subject: protoagent.EvtStopWorkerSubject("%s", "%s", workerID),
+			data: protoagent.StopWorkerResponse{
 				Error: err,
 			},
 		}
@@ -200,8 +199,8 @@ func (s *Service) handleStopWorker(ctx context.Context, params Params, m any) an
 
 	return Message{
 		msg:     msg,
-		subject: proto.EvtStopWorkerSubject(s.args.ID, workerID),
-		data:    proto.StopWorkerResponse{},
+		subject: protoagent.EvtStopWorkerSubject("%s", "%s", workerID),
+		data:    protoagent.StopWorkerResponse{},
 	}
 }
 
@@ -213,7 +212,7 @@ func (s *Service) handleWriteWorkerStdin(ctx context.Context, params Params, m a
 		return nil
 	}
 
-	v, ok := msg.Data().(proto.UpdateWorkerStdio)
+	v, ok := msg.Data().(protoagent.UpdateWorkerStdio)
 	if !ok {
 		log.Debug("Invalid request data")
 		return nil
@@ -239,8 +238,8 @@ func (s *Service) handleWorkerStatusStopped(_ context.Context, params Params, da
 	s.removeWorker(v.WorkerID)
 
 	return Message{
-		subject: proto.EvtWorkerStatusSubject(s.args.ID, v.WorkerID),
-		data: proto.UpdateWorkerStatus{
+		subject: protoagent.EvtWorkerStatusSubject("%s", "%s", v.WorkerID),
+		data: protoagent.UpdateWorkerStatus{
 			Status: v.Status,
 			Error:  v.Error,
 		},
@@ -255,8 +254,8 @@ func (s *Service) handleWorkerStatusStdout(_ context.Context, _ Params, data any
 	}
 
 	return Message{
-		subject: proto.EvtWorkerStdoutSubject(s.args.ID, v.WorkerID),
-		data: proto.UpdateWorkerStdio{
+		subject: protoagent.EvtWorkerStdoutSubject("%s", "%s", v.WorkerID),
+		data: protoagent.UpdateWorkerStdio{
 			Data: v.OutputData,
 		},
 	}

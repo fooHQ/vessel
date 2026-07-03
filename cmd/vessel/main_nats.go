@@ -6,8 +6,6 @@ import (
 	"context"
 	"crypto/x509"
 	"encoding/base64"
-	"errors"
-	"iter"
 	"net"
 	"os"
 	"os/signal"
@@ -16,14 +14,13 @@ import (
 	"sync"
 	"time"
 
-	proto "github.com/foohq/foojank-proto/go"
 	natsfs "github.com/foohq/ren-natsfs"
-	"github.com/nats-io/nuid"
 
 	execcmd "github.com/foohq/vessel/commands/exec"
+	"github.com/foohq/vessel/internal/consumer"
+	"github.com/foohq/vessel/internal/publisher"
 
-	vessel "github.com/foohq/vessel/internal"
-	"github.com/foohq/vessel/internal/message"
+	"github.com/foohq/vessel/internal/service"
 	"github.com/foohq/vessel/log"
 
 	"github.com/foohq/ren"
@@ -35,6 +32,7 @@ import (
 
 var (
 	AgentID               = ""
+	GatewayID             = ""
 	ServerURL             = ""
 	ServerCertificate     = ""
 	UserJWT               = ""
@@ -87,14 +85,15 @@ func main() {
 		"nats": natsFS,
 	}))
 
-	err = vessel.New(vessel.Arguments{
-		ID: AgentID,
-		Consumer: NewConsumer(ConsumerConfig{
+	err = service.New(service.Arguments{
+		Consumer: consumer.NewStreamConsumer(consumer.StreamConsumerConfig{
 			Connection: conn,
 			Stream:     StreamName,
 			Consumer:   ConsumerName,
 		}),
-		Publisher: NewPublisher(PublisherConfig{
+		Publisher: publisher.NewStreamPublisher(publisher.StreamPublisherConfig{
+			AgentID:    AgentID,
+			GatewayID:  GatewayID,
 			Connection: conn,
 		}),
 		ConnChecker: NewConnChecker(ConnCheckerConfig{
@@ -111,124 +110,6 @@ func main() {
 	}
 }
 
-type ConsumerConfig struct {
-	Connection jetstream.JetStream
-	Stream     string
-	Consumer   string
-}
-
-type Consumer struct {
-	conf ConsumerConfig
-}
-
-func NewConsumer(args ConsumerConfig) *Consumer {
-	return &Consumer{
-		conf: args,
-	}
-}
-
-func (s *Consumer) Messages(ctx context.Context) iter.Seq2[message.Msg, error] {
-	consumer, err := s.conf.Connection.Consumer(ctx, s.conf.Stream, s.conf.Consumer)
-	if err != nil {
-		return func(yield func(message.Msg, error) bool) {
-			yield(nil, err)
-		}
-	}
-
-	return func(yield func(message.Msg, error) bool) {
-		for ctx.Err() == nil {
-			msg, err := consumer.Next(jetstream.FetchContext(ctx))
-			if err != nil {
-				if errors.Is(err, jetstream.ErrMsgIteratorClosed) {
-					yield(nil, err)
-					return
-				}
-				continue
-			}
-
-			data, err := proto.Unmarshal(msg.Data())
-			if err != nil {
-				err := msg.Ack()
-				if err != nil {
-					yield(nil, err)
-					return
-				}
-				continue
-			}
-
-			yield(ConsumerMessage{
-				msg:  msg,
-				data: data,
-			}, nil)
-		}
-	}
-}
-
-type ConsumerMessage struct {
-	msg  jetstream.Msg
-	data any
-}
-
-func (m ConsumerMessage) ID() string {
-	return m.msg.Headers().Get(nats.MsgIdHdr)
-}
-
-func (m ConsumerMessage) Subject() string {
-	return m.msg.Subject()
-}
-
-func (m ConsumerMessage) Data() any {
-	return m.data
-}
-
-func (m ConsumerMessage) Ack() error {
-	return m.msg.Ack()
-}
-
-type PublisherConfig struct {
-	Connection jetstream.JetStream
-}
-
-type Publisher struct {
-	conf PublisherConfig
-}
-
-func NewPublisher(args PublisherConfig) *Publisher {
-	return &Publisher{
-		conf: args,
-	}
-}
-
-func (p *Publisher) Publish(ctx context.Context, msg message.Msg) error {
-	data, err := proto.Marshal(msg.Data())
-	if err != nil {
-		return err
-	}
-
-	opts := []jetstream.PublishOpt{
-		jetstream.WithRetryAttempts(3),
-		jetstream.WithRetryWait(250 * time.Millisecond),
-	}
-	_, err = p.conf.Connection.PublishMsg(
-		ctx,
-		&nats.Msg{
-			Subject: msg.Subject(),
-			Header: map[string][]string{
-				jetstream.MsgIDHeader: {
-					nuid.Next(),
-				},
-			},
-			Data: data,
-		},
-		opts...,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 type ConnCheckerConfig struct {
 	Connection jetstream.JetStream
 }
@@ -243,12 +124,12 @@ func NewConnChecker(conf ConnCheckerConfig) *ConnChecker {
 	}
 }
 
-func (c *ConnChecker) Status() vessel.Status {
+func (c *ConnChecker) Status() service.Status {
 	switch c.conn.Conn().Status() {
 	case nats.CONNECTED:
-		return vessel.StatusConnected
+		return service.StatusConnected
 	default:
-		return vessel.StatusDisconnected
+		return service.StatusDisconnected
 	}
 }
 

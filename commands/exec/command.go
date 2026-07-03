@@ -10,7 +10,7 @@ import (
 	"github.com/foohq/ren/builtins"
 	"github.com/foohq/ren/modules"
 
-	proto "github.com/foohq/foojank-proto/go"
+	protoagent "github.com/foohq/foojank-proto/go/agent"
 
 	"github.com/foohq/vessel/internal/command"
 	"github.com/foohq/vessel/log"
@@ -28,18 +28,18 @@ func New(filesystems map[string]ren.FS) *Command {
 
 func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout command.File) (int64, error) {
 	if len(args) == 0 {
-		return proto.ExitFailure, errors.New("missing package path")
+		return protoagent.ExitFailure, errors.New("missing package path")
 	}
 
 	pkg := args[0]
 	u, err := url.Parse(pkg)
 	if err != nil {
-		return proto.ExitFailure, err
+		return protoagent.ExitFailure, err
 	}
 
 	b, err := c.readFile(ctx, u)
 	if err != nil {
-		return proto.ExitFailure, errors.New("cannot read package '" + u.Path + "': " + err.Error())
+		return protoagent.ExitFailure, errors.New("cannot read package '" + u.Path + "': " + err.Error())
 	}
 
 	opts := []ren.Option{
@@ -55,7 +55,7 @@ func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout com
 	// Configure exit status handler
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	status := proto.ExitSuccess
+	status := protoagent.ExitSuccess
 	opts = append(opts, ren.WithExitHandler(func(code int) {
 		log.Debug("on exit", "code", code)
 		status = int64(code)
@@ -93,9 +93,9 @@ func (c *Command) Run(ctx context.Context, args, env []string, stdin, stdout com
 	case err == nil:
 		return status, nil
 	case errors.Is(err, context.Canceled):
-		return proto.ExitInterrupted, nil
+		return protoagent.ExitInterrupted, nil
 	default:
-		return proto.ExitFailure, err
+		return protoagent.ExitFailure, err
 	}
 }
 

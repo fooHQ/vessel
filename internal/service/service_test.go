@@ -1,4 +1,4 @@
-package internal_test
+package service_test
 
 import (
 	"testing"

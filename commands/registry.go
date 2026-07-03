@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	proto "github.com/foohq/foojank-proto/go"
+	protoagent "github.com/foohq/foojank-proto/go/agent"
 
 	"github.com/foohq/vessel/internal/command"
 )
@@ -27,7 +27,7 @@ func (r *Registry) RunCommand(ctx context.Context, cmd string, args, env []strin
 	cc, ok := r.commands[cmd]
 	if !ok {
 		return Status{
-			code: proto.ExitCommandNotFound,
+			code: protoagent.ExitCommandNotFound,
 			err:  errors.New("command not found"),
 		}
 	}
