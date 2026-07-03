@@ -43,9 +43,10 @@ func (s *Service) Start(ctx context.Context) error {
 	termCh := make(chan struct{}, 4)
 
 	var wg sync.WaitGroup
+	var cancels []context.CancelFunc
 
 	consumerCtx, consumerCancel := context.WithCancel(context.Background())
-	defer consumerCancel()
+	cancels = append(cancels, consumerCancel)
 
 	wg.Go(func() {
 		err := consumer(consumerCtx, s.args.Consumer, consumerOutCh)
@@ -56,7 +57,7 @@ func (s *Service) Start(ctx context.Context) error {
 	})
 
 	workManagerCtx, workManagerCancel := context.WithCancel(context.Background())
-	defer workManagerCancel()
+	cancels = append(cancels, workManagerCancel)
 
 	wg.Go(func() {
 		err := workmanager.New(workmanager.Arguments{
@@ -71,7 +72,7 @@ func (s *Service) Start(ctx context.Context) error {
 	})
 
 	beaconCtx, beaconCancel := context.WithCancel(context.Background())
-	defer beaconCancel()
+	cancels = append(cancels, beaconCancel)
 
 	wg.Go(func() {
 		err := beacon(beaconCtx, s.args.ConnChecker, protoagent.EvtAgentInfoSubject("%s", "%s"), s.args.HostInfo, publisherInCh)
@@ -82,7 +83,7 @@ func (s *Service) Start(ctx context.Context) error {
 	})
 
 	publisherCtx, publisherCancel := context.WithCancel(context.Background())
-	defer publisherCancel()
+	cancels = append(cancels, publisherCancel)
 
 	wg.Go(func() {
 		err := publisher(publisherCtx, s.args.Publisher, publisherInCh)
@@ -91,13 +92,6 @@ func (s *Service) Start(ctx context.Context) error {
 		}
 		termCh <- struct{}{}
 	})
-
-	cancels := []context.CancelFunc{
-		consumerCancel,
-		workManagerCancel,
-		beaconCancel,
-		publisherCancel,
-	}
 
 	select {
 	case <-ctx.Done():
