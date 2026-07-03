@@ -39,6 +39,7 @@ func (s *Service) Start(ctx context.Context) error {
 	termCh := make(chan struct{}, 8)
 
 	var wg sync.WaitGroup
+	var cancels []context.CancelFunc
 
 	stdin := command.NewPipe()
 	stdinWriterCtx, stdinWriterCancel := context.WithCancel(ctx)
@@ -46,7 +47,7 @@ func (s *Service) Start(ctx context.Context) error {
 		_ = stdin.Close()
 		stdinWriterCancel()
 	}
-	defer stdinWriterCancelWrapper()
+	cancels = append(cancels, stdinWriterCancelWrapper)
 
 	wg.Go(func() {
 		err := stdinWriter(stdinWriterCtx, s.args.StdinCh, stdin)
@@ -62,7 +63,7 @@ func (s *Service) Start(ctx context.Context) error {
 		_ = stdout.Close()
 		stdoutReaderCancel()
 	}
-	defer stdoutReaderCancelWrapper()
+	cancels = append(cancels, stdoutReaderCancelWrapper)
 
 	wg.Go(func() {
 		err := stdoutReader(stdoutReaderCtx, s.args.ID, stdout, s.args.EventCh)
@@ -73,7 +74,7 @@ func (s *Service) Start(ctx context.Context) error {
 	})
 
 	runnerCtx, runnerCancel := context.WithCancel(ctx)
-	defer runnerCancel()
+	cancels = append(cancels, runnerCancel)
 
 	wg.Go(func() {
 		status := s.args.Commands.RunCommand(runnerCtx, s.args.Command, s.args.Args, s.args.Env, stdin, stdout)
@@ -87,12 +88,6 @@ func (s *Service) Start(ctx context.Context) error {
 		}
 		termCh <- struct{}{}
 	})
-
-	cancels := []context.CancelFunc{
-		runnerCancel,
-		stdinWriterCancelWrapper,
-		stdoutReaderCancelWrapper,
-	}
 
 	select {
 	case <-ctx.Done():
